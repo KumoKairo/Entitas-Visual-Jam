@@ -8,15 +8,18 @@ namespace Entitas.Visual
     {
         public const string NAME = "VisualEntitasCore";
         public const string STARTUP = NAME + "Startup";
+        public const string TEARDOWN = NAME + "Teardown";
 
         protected override void InitializeController()
         {
             base.InitializeController();
-            RegisterCommand(STARTUP, () => new MainStartupCommand());
+            RegisterCommand(STARTUP, () => new StartupCommand());
+            RegisterCommand(TEARDOWN, () => new TeardownCommand());
         }
 
         public void Startup()
         {
+            SendNotification(TEARDOWN);
             SendNotification(STARTUP);
         }
 

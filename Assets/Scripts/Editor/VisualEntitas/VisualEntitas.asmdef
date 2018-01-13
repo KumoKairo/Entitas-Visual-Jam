@@ -1,7 +1,8 @@
 {
     "name": "VisualEntitas",
     "references": [
-        "PureMVC"
+        "PureMVC",
+        "Entitas"
     ],
     "includePlatforms": [],
     "excludePlatforms": []

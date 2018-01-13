@@ -73,7 +73,7 @@ namespace PureMVC.Patterns.Observer
         }
 
         /// <summary>the name of the notification instance</summary>
-        public string Name { get; }
+        public string Name { get; set; }
 
         /// <summary>the body of the notification instance</summary>
         public object Body { get; set; }

@@ -26,7 +26,7 @@ namespace PureMVC.Patterns.Mediator
         ///         will not have a need to be dynamically named.
         ///     </para>
         /// </remarks>
-        public static string NAME = "Mediator";
+        private const string DEFAULT_NAME = "Mediator";
 
         /// <summary>
         /// Constructor.
@@ -35,7 +35,7 @@ namespace PureMVC.Patterns.Mediator
         /// <param name="viewComponent"></param>
         public Mediator(string mediatorName, object viewComponent = null)
         {
-            MediatorName = mediatorName ?? Mediator.NAME;
+            MediatorName = mediatorName ?? Mediator.DEFAULT_NAME;
             ViewComponent = viewComponent;
         }
 
