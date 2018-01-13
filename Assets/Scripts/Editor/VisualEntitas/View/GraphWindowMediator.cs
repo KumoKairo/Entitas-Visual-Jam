@@ -1,4 +1,4 @@
-﻿using Entitas.Visual.View.Window;
+﻿using Entitas.Visual.View.Drawer;
 using PureMVC.Patterns.Mediator;
 using UnityEditor;
 
@@ -8,6 +8,8 @@ namespace Entitas.Visual.View
     {
         public const string Name = "GraphWindow";
 
+        private GraphWindow _window;
+
         public GraphWindowMediator() : base(Name, null)
         {
         }
@@ -16,6 +18,9 @@ namespace Entitas.Visual.View
         {
             var window = EditorWindow.GetWindow<GraphWindow>();
             window.InitializeContent();
+
+            Facade.RegisterMediator(new GraphWindowTopToolbarMediator(window));
+            Facade.RegisterMediator(new NodeAreaMediator(window));
         }
     }
 }

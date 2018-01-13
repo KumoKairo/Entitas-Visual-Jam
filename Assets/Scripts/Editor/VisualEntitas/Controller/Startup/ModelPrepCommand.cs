@@ -1,4 +1,5 @@
-﻿using PureMVC.Interfaces;
+﻿using Entitas.Visual.Model;
+using PureMVC.Interfaces;
 using PureMVC.Patterns.Command;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace Entitas.Visual.Controller
     {
         public override void Execute(INotification notification)
         {
-            Debug.Log("Model preparation");
+            Facade.RegisterProxy(new GraphProxy());
         }
     }
 }

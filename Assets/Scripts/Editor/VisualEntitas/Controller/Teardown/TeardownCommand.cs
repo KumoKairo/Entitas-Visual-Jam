@@ -7,6 +7,7 @@ namespace Entitas.Visual.Controller
         protected override void InitializeMacroCommand()
         {
             AddSubCommand(() => new ViewTeardownCommand());
+            AddSubCommand(() => new ModelTeardownCommand());
         }
     }
 }

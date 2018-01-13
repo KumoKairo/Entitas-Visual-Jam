@@ -9,6 +9,8 @@ namespace Entitas.Visual.Controller
         public override void Execute(INotification notification)
         {
             Facade.RemoveMediator(VisualEntitasAppMediator.Name);
+            Facade.RemoveMediator(GraphWindowTopToolbarMediator.Name);
+            Facade.RemoveMediator(NodeAreaMediator.Name);
         }
     }
 }
