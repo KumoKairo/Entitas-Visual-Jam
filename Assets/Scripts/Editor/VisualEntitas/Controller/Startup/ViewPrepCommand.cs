@@ -1,6 +1,7 @@
 ﻿using Entitas.Visual.View;
 using PureMVC.Interfaces;
 using PureMVC.Patterns.Command;
+using UnityEditor;
 
 namespace Entitas.Visual.Controller
 {
@@ -8,7 +9,7 @@ namespace Entitas.Visual.Controller
     {
         public override void Execute(INotification notification)
         {
-            Facade.RegisterMediator(new VisualEntitasAppMediator());
+            Facade.RegisterMediator(new VisualEntitasAppMediator(notification.Body as EditorWindow));
         }
     }
 }

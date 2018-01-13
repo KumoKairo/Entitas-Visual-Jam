@@ -1,4 +1,6 @@
-﻿using PureMVC.Patterns.Mediator;
+﻿using PureMVC.Interfaces;
+using PureMVC.Patterns.Mediator;
+using UnityEditor;
 using UnityEngine;
 
 namespace Entitas.Visual.View
@@ -6,19 +8,19 @@ namespace Entitas.Visual.View
     public class VisualEntitasAppMediator : Mediator
     {
         public const string Name = "VisualEntitasMediator";
-        public VisualEntitasAppMediator() : base(Name, null)
+
+        public VisualEntitasAppMediator(EditorWindow window) : base(Name, window)
         {
+            window.titleContent = new GUIContent("Visual Entitas");
         }
 
         public override void OnRegister()
         {
-            Debug.Log("OnRegister " + Name);
-            Facade.RegisterMediator(new GraphWindowMediator());
+            Facade.RegisterMediator(new GraphWindowMediator(ViewComponent as EditorWindow));
         }
 
         public override void OnRemove()
         {
-            Debug.Log("OnRemove " + Name);
             Facade.RemoveMediator(GraphWindowMediator.Name);
         }
     }

@@ -3,20 +3,8 @@ using UnityEngine;
 
 namespace Entitas.Visual.View.Drawer
 {
-    public class GraphWindowTopToolbar : IOnGUIObserver
+    public class GraphWindowTopToolbar : IOnGuiView
     {
-        public void RegisterOnGUITo(GraphWindow graphWindow, bool shouldRegister)
-        {
-            if (shouldRegister)
-            {
-                graphWindow.AddOnGUIObserver(this);
-            }
-            else
-            {
-                graphWindow.RemoveOnGUIObserver(this);
-            }
-        }
-
         public void OnGUI(EditorWindow parentWindow)
         {
             if (Event.current.type != EventType.Repaint)

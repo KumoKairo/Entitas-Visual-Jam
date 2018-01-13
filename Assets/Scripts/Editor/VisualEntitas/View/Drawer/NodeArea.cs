@@ -1,29 +1,16 @@
 ﻿using System;
-using Entitas.Visual.Model;
 using UnityEditor;
 using UnityEngine;
 
 namespace Entitas.Visual.View.Drawer
 {
-    public class NodeArea : IOnGUIObserver
+    public class NodeArea : IOnGuiView
     {
         public event Action CreateNewComponentEvent;
 
         private static int RightClickControlID = "NodeAreaRightClick".GetHashCode();
 
         private GenericMenu _genericMenu;
-
-        public void RegisterOnGUITo(GraphWindow graphWindow, bool shouldRegister)
-        {
-            if (shouldRegister)
-            {
-                graphWindow.AddOnGUIObserver(this);
-            }
-            else
-            {
-                graphWindow.RemoveOnGUIObserver(this);
-            }
-        }
 
         public void OnGUI(EditorWindow window)
         {

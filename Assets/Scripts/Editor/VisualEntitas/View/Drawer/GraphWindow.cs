@@ -1,42 +1,18 @@
-﻿using System.Collections.Generic;
-using Entitas.Visual.Utils;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace Entitas.Visual.View.Drawer
 {
-    public class GraphWindow : EditorWindow
+    public class GraphWindow : IOnGuiView
     {
-        private List<IOnGUIObserver> _children = new List<IOnGUIObserver>();
-
-        public void InitializeContent()
+        public void OnGUI(EditorWindow window)
         {
-            titleContent = new GUIContent("Graph");
+            DrawBackground(window.position);
+            DrawGrid(window.position);
         }
 
-        public void AddOnGUIObserver(IOnGUIObserver observer)
-        {
-            _children.AddOnce(observer);
-        }
-
-        public void RemoveOnGUIObserver(IOnGUIObserver observer)
-        {
-            _children.Remove(observer);
-        }
-
-        private void OnGUI()
-        {
-            DrawBackground();
-            DrawGrid();
-
-            foreach (var onGuiObserver in _children)
-            {
-                onGuiObserver.OnGUI(this);
-            }
-        }
-
-        private void DrawBackground()
+        private void DrawBackground(Rect position)
         {
             GL.PushMatrix();
             StyleProxy.EditorMaterial.SetPass(0);
@@ -52,7 +28,7 @@ namespace Entitas.Visual.View.Drawer
             GL.PopMatrix();
         }
 
-        private void DrawGrid()
+        private void DrawGrid(Rect position)
         {
             if (Event.current.type != EventType.Repaint)
             {
@@ -62,14 +38,14 @@ namespace Entitas.Visual.View.Drawer
             Profiler.BeginSample("Draw grid");
             GL.PushMatrix();
             GL.Begin(GL.LINES);
-            this.DrawGridLines(12f, StyleProxy.DarkLineColorMinor);
-            this.DrawGridLines(120f, StyleProxy.DarkLineColorMajor);
+            this.DrawGridLines(12f, StyleProxy.DarkLineColorMinor, position);
+            this.DrawGridLines(120f, StyleProxy.DarkLineColorMajor, position);
             GL.End();
             GL.PopMatrix();
             Profiler.EndSample();
         }
 
-        private void DrawGridLines(float gridSize, Color gridColor)
+        private void DrawGridLines(float gridSize, Color gridColor, Rect position)
         {
             if (Event.current.type != EventType.Repaint)
             {
@@ -86,7 +62,7 @@ namespace Entitas.Visual.View.Drawer
 
                 x += gridSize;
             }
-            //GL.Color(gridColor);
+
             float y = 16f;
             while (y < position.height)
             {
