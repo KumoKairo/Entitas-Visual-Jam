@@ -7,7 +7,7 @@ namespace Entitas.Visual.Model.VO
     [Serializable]
     public class Node
     {
-        public Vector2 Position;
+        public Rect Position;
 
         public string Name;
         public string[] Fields;
