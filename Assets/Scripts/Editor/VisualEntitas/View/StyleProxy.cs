@@ -27,7 +27,7 @@ namespace Entitas.Visual.View
             get { return (Texture2D)(_chevronDownTexture = _chevronDownTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.chevron.down.png")); }
         }
 
-        public static Color TransparentYellowColor = new Color32(241, 196, 15, 20);
+        public static Color SemiTransparentBlackColor = new Color32(0, 0, 0, 55);
         public static Color TransparentBlackColor = new Color32(0, 0, 0, 35);
         public static Color ChevronUpBackdropColorNormal = new Color32(52, 73, 94, 200);
         public static Color ChevronUpBackdropColorHover = new Color32(39, 174, 96, 255);

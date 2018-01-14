@@ -72,12 +72,28 @@ namespace Entitas.Visual.View.Drawer
             float fieldsAdditionLineHeight = 32f;
 
             float fieldLineHeight = 16f;
+            float chevronBackdropHeight = 16f;
 
             int fieldsCount = node.Fields.Count;
 
             var nodePosition = node.Position;
             nodePosition.height = node.IsCollapsed ? titleHeight : titleHeight + fieldsAdditionLineHeight + fieldLineHeight * fieldsCount;
             GUIHelper.DrawQuad(nodePosition, StyleProxy.NodeBackgroundColor);
+
+            float shadowOffset = 8f;
+            GUIHelper.DrawQuad(new Rect(
+                    nodePosition.x + shadowOffset, 
+                    nodePosition.y + nodePosition.height + chevronBackdropHeight,
+                    nodePosition.width,
+                    shadowOffset), 
+                StyleProxy.SemiTransparentBlackColor);
+
+            GUIHelper.DrawQuad(new Rect(
+                    nodePosition.x + nodePosition.width,
+                    nodePosition.y + shadowOffset,
+                    shadowOffset,
+                    nodePosition.height + shadowOffset),
+                StyleProxy.SemiTransparentBlackColor);
 
             DrawTitle(node, titleHeight);
 
@@ -131,7 +147,7 @@ namespace Entitas.Visual.View.Drawer
                 }
             }
 
-            DrawCollapseChevron(node, current, window, nodePosition);
+            DrawCollapseChevron(node, current, window, nodePosition, chevronBackdropHeight);
 
             if (node.Position.Contains(current.mousePosition))
             {
@@ -145,7 +161,7 @@ namespace Entitas.Visual.View.Drawer
             float fieldsBlockHeight)
         {
             var fullBackdropPosition = new Rect(nodePosition.position.x, nodePosition.y + titleHeight, nodePosition.width, fieldsBlockHeight);
-            GUIHelper.DrawQuad(fullBackdropPosition, StyleProxy.TransparentYellowColor);
+            GUIHelper.DrawQuad(fullBackdropPosition, StyleProxy.SemiTransparentBlackColor);
 
             var fieldsTextSize = StyleProxy.NodeFieldsTextStyle.CalcSize(new GUIContent("FIELDS"));
             var plusIconSize = new Vector2(30f, 30f);
@@ -188,7 +204,7 @@ namespace Entitas.Visual.View.Drawer
             }
         }
 
-        private void DrawCollapseChevron(Node node, Event current, EditorWindow window, Rect nodePosition)
+        private void DrawCollapseChevron(Node node, Event current, EditorWindow window, Rect nodePosition, float chevronBackdropHeight)
         {
             var chevronSize = new Vector2(32f, 32f);
             var chevronPosition = new Rect(
@@ -199,7 +215,7 @@ namespace Entitas.Visual.View.Drawer
                 chevronSize);
 
             var chevronBackdropPosition =
-                new Rect(nodePosition.x, nodePosition.y + nodePosition.height, nodePosition.width, 16f);
+                new Rect(nodePosition.x, nodePosition.y + nodePosition.height, nodePosition.width, chevronBackdropHeight);
             chevronBackdropPosition.x = node.Position.x;
             chevronBackdropPosition.width = node.Position.width;
 
