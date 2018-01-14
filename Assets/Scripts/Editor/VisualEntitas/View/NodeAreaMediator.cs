@@ -25,8 +25,9 @@ namespace Entitas.Visual.View
             _nodeArea.CreateNewComponentEvent += OnCreateNewComponent;
             _nodeArea.NodeRemovedEvent += OnNodeRemove;
             _nodeArea.NodeUpdatedPositionEvent += OnNodePositionUpdated;
+            _nodeArea.NodeCollapsedEvent += OnNodeCollapsed;
         }
-
+        
         public override void OnRemove()
         {
             _nodeArea.CreateNewComponentEvent -= OnCreateNewComponent;
@@ -45,17 +46,23 @@ namespace Entitas.Visual.View
             _graphProxy.AddNewNode(mousePosition);
         }
 
-        private void OnNodePositionUpdated(Node node, Vector2 newPosition)
+        private void OnNodePositionUpdated(Node node, Vector2 newPosition, bool isCompleted)
         {
-            var position = node.Position;
-            position.position = newPosition;
-            node.Position = position;
-            //_graphProxy.UpdateNodePosition(node);
+            node.Position.position = newPosition;
+            if (isCompleted)
+            {
+                _graphProxy.UpdateNodePosition(node, newPosition);
+            }
         }
 
         private void OnNodeRemove(Node node)
         {
             _graphProxy.RemoveNode(node);
+        }
+
+        private void OnNodeCollapsed(Node node)
+        {
+            _graphProxy.CollapseNode(node);
         }
     }
 }

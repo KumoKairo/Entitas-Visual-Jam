@@ -7,6 +7,7 @@ namespace Entitas.Visual.Model.VO
     [Serializable]
     public class Node
     {
+        public bool IsCollapsed;
         public Rect Position;
 
         public string Name;

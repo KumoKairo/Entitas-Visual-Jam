@@ -1,6 +1,7 @@
 ﻿using System;
 using Entitas.Visual.Model;
 using Entitas.Visual.Model.VO;
+using Entitas.Visual.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,9 +11,8 @@ namespace Entitas.Visual.View.Drawer
     {
         public event Action<Vector2> CreateNewComponentEvent;
         public event Action<Node> NodeRemovedEvent;
-        public event Action<Node, Vector2> NodeUpdatedPositionEvent;
-
-        private static int RightClickControlID = "NodeAreaRightClick".GetHashCode();
+        public event Action<Node> NodeCollapsedEvent;
+        public event Action<Node, Vector2, bool> NodeUpdatedPositionEvent;
 
         private GenericMenu _backdropContextMenu;
         private GenericMenu _nodeContextMenu;
@@ -36,11 +36,8 @@ namespace Entitas.Visual.View.Drawer
             Node mouseOverNode = null;
             foreach (var node in _graphProxy.GraphData.Nodes)
             {
-                GUI.Box(node.Position, "", StyleProxy.NodeBackgroundStyle);
-                if (node.Position.Contains(current.mousePosition))
-                {
-                    mouseOverNode = node;
-                }
+                var newMouseOverNode = DrawNode(node, current, window);
+                mouseOverNode = mouseOverNode ?? newMouseOverNode;
             }
 
             var nodeAreaRect = new Rect(0f, 16f, window.position.width, window.position.height);
@@ -50,19 +47,74 @@ namespace Entitas.Visual.View.Drawer
                 return;
             }
 
-            int controlId = GUIUtility.GetControlID(RightClickControlID, FocusType.Passive);
             switch (current.button)
             {
                 case 0:
-                    HandleDrag(mouseOverNode, current, controlId, window);
+                    HandleDrag(mouseOverNode, current, window);
                     break;
                 case 1:
-                    HandleRightClick(mouseOverNode, current, nodeAreaRect, controlId);
+                    HandleRightClick(mouseOverNode, current, nodeAreaRect);
                     break;
             }
         }
 
-        private void HandleDrag(Node mouseOverNode, Event current, int controlId, EditorWindow window)
+        private Node DrawNode(Node node, Event current, EditorWindow window)
+        {
+            Node mouseOverNode = null;
+
+            float titleHeight = 32f;
+
+            var nodePosition = node.Position;
+            nodePosition.height = node.IsCollapsed ? titleHeight : nodePosition.height;
+
+            GUIHelper.DrawQuad(nodePosition, StyleProxy.NodeBackgroundColor);
+            var titleBackdropBox = new Rect(node.Position.position, new Vector2(node.Position.width, titleHeight));
+            GUIHelper.DrawQuad(titleBackdropBox, StyleProxy.NodeTitleBackdropColor);
+
+            var textBlockSize = StyleProxy.NodeTitleTextStyle.CalcSize(new GUIContent("NODE"));
+            var textPosition = new Rect(
+                node.Position.x + node.Position.width * 0.5f - textBlockSize.x * 0.5f,
+                node.Position.y + titleBackdropBox.height * 0.5f - textBlockSize.y * 0.5f,
+                textBlockSize.x,
+                16f);
+
+            GUI.Box(textPosition, "NODE", StyleProxy.NodeTitleTextStyle);
+            if (node.Position.Contains(current.mousePosition))
+            {
+                mouseOverNode = node;
+            }
+
+            var chevronSize = new Vector2(32f, 32f);
+            var chevronPosition = new Rect(
+                new Vector2(
+                    nodePosition.x + nodePosition.width * 0.5f - chevronSize.x * 0.5f,
+                    nodePosition.y + nodePosition.height - chevronSize.y * 0.25f
+                    ),
+                chevronSize);
+
+            var chevronBackdropPosition = chevronPosition.Offset(new Rect(-8f, 8f, 16f, -16f));
+            chevronBackdropPosition.x = node.Position.x;
+            chevronBackdropPosition.width = node.Position.width;
+            GUIHelper.DrawQuad(chevronBackdropPosition, StyleProxy.ChevronUpBackdropColor);
+            var color = GUI.color;
+            GUI.color = StyleProxy.ChevronUpColor;
+            GUI.DrawTexture(chevronPosition, node.IsCollapsed ? StyleProxy.ChevronDownTexture : StyleProxy.ChevronUpTexture);
+            GUI.color = color;
+
+            if (current.type == EventType.MouseDown && chevronBackdropPosition.Contains(current.mousePosition) && current.button == 0)
+            {
+                if (NodeCollapsedEvent != null)
+                {
+                    NodeCollapsedEvent(node);
+                    window.Repaint();
+                    current.Use();
+                }
+            }
+
+            return mouseOverNode;
+        }
+
+        private void HandleDrag(Node mouseOverNode, Event current, EditorWindow window)
         {
             switch (current.type)
             {
@@ -71,39 +123,35 @@ namespace Entitas.Visual.View.Drawer
                     {
                         _draggingNode = mouseOverNode;
                         _draggingOffset = mouseOverNode.Position.position - current.mousePosition;
-                        //GUIUtility.hotControl = controlId;
+                        current.Use();
                     }
                     break;
 
                 case EventType.MouseUp:
-                    //if (GUIUtility.hotControl != controlId)
-                    //{
-                    //    break;
-                    //}
-                    //GUIUtility.hotControl = 0;
+                    if (_draggingNode != null && NodeUpdatedPositionEvent != null)
+                    {
+                        NodeUpdatedPositionEvent(_draggingNode, current.mousePosition + _draggingOffset, true);
+                    }
                     _draggingNode = null;
                     break;
 
                 case EventType.MouseMove:
                 case EventType.MouseDrag:
-                    //if (GUIUtility.hotControl != controlId)
-                    //{
-                    //    break;
-                    //}
                     if (_draggingNode != null)
                     {
-                        if (NodeUpdatedPositionEvent != null)
+                        if(NodeUpdatedPositionEvent != null)
                         {
-                            NodeUpdatedPositionEvent(_draggingNode, current.mousePosition + _draggingOffset);
-                            window.Repaint();
+                            NodeUpdatedPositionEvent(_draggingNode, current.mousePosition + _draggingOffset, false);
                         }
+                        current.Use();
+                        window.Repaint();
                     }
                     break;
             }
 
         }
 
-        private void HandleRightClick(Node mouseOverNode, Event current, Rect nodeAreaRect, int controlId)
+        private void HandleRightClick(Node mouseOverNode, Event current, Rect nodeAreaRect)
         {
             if (mouseOverNode != null)
             {
@@ -111,10 +159,9 @@ namespace Entitas.Visual.View.Drawer
                 _lastSelectedNode = mouseOverNode;
                 current.Use();
             }
-            else if (nodeAreaRect.Contains(current.mousePosition)
-                     && current.GetTypeForControl(controlId) == EventType.MouseDown)
+            else if (nodeAreaRect.Contains(current.mousePosition) 
+                && current.type == EventType.MouseDown)
             {
-                GUIUtility.hotControl = controlId;
                 _backdropContextMenu.ShowAsContext();
                 _lastMousePosition = current.mousePosition;
                 current.Use();

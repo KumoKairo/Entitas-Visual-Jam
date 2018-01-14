@@ -12,35 +12,50 @@ namespace Entitas.Visual.View
 
         public static Color OrangeDebugColor = new Color32(231, 76, 60, 100);
 
-        private static object _nodeBackgroundStyle;
-        public static GUIStyle NodeBackgroundStyle
+        public static Color NodeTitleBackdropColor = new Color32(137, 204, 249, 200);
+        public static Color NodeBackgroundColor = new Color32(38, 55, 72, 200);
+
+        private static object _chevronUpTexture;
+        public static Texture2D ChevronUpTexture
+        {
+            get { return (Texture2D)(_chevronUpTexture = _chevronUpTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.chevron.up.png")); }
+        }
+
+        private static object _chevronDownTexture;
+        public static Texture2D ChevronDownTexture
+        {
+            get { return (Texture2D)(_chevronDownTexture = _chevronDownTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.chevron.down.png")); }
+        }
+
+        public static Color ChevronUpBackdropColor = new Color32(52, 73, 94, 200);
+        public static Color ChevronUpColor = new Color32(211, 84, 0, 200);
+        public static Color ChevronDownColor = new Color32(39, 174, 96, 200);
+
+        private static object _nodeTitleTextStyle;
+        public static GUIStyle NodeTitleTextStyle
         {
             get
             {
-                _nodeBackgroundStyle = _nodeBackgroundStyle ?? new GUIStyle
+                _nodeTitleTextStyle = _nodeTitleTextStyle ?? new GUIStyle
                 {
                     normal =
                     {
-                        background = (Texture2D) EditorGUIUtility.Load("Textures/NodeBackground.png"),
-                        textColor = new Color(0.82f, 0.82f, 0.82f),
+                        background = null,
+                        textColor = new Color32(55, 23, 20, 255)
                     },
-                    stretchHeight = true,
-                    stretchWidth = true,
-                    border = new RectOffset(44, 50, 20, 34),
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Bold.ttf"),
+                    fontSize = 16
                 };
 
-                return (GUIStyle) _nodeBackgroundStyle;
+                return (GUIStyle)_nodeTitleTextStyle;
             }
         }
 
+        public static int EditorMaterialTextureParameterName = Shader.PropertyToID("_MainTex");
         private static object _editorMaterial;
         public static Material EditorMaterial
         {
-            get
-            {
-                _editorMaterial = _editorMaterial ?? EditorGUIUtility.Load("UnlitColorMaterial.mat");
-                return (Material) _editorMaterial;
-            }
+            get { return (Material)(_editorMaterial = _editorMaterial ?? EditorGUIUtility.Load("UnlitTextureMaterial.mat")); }
         }
     }
 }

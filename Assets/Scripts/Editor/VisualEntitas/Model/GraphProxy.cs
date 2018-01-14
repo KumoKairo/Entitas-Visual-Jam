@@ -35,7 +35,7 @@ namespace Entitas.Visual.Model
         {
             GraphData.Nodes.Add(new Node
             {
-                Position = new Rect(mousePosition, new Vector2(144f, 60f))
+                Position = new Rect(mousePosition, new Vector2(160f, 80f))
             });
 
             SaveGraph(GraphData);
@@ -48,8 +48,15 @@ namespace Entitas.Visual.Model
             SaveGraph(GraphData);
         }
 
-        public void UpdateNodePosition(Node node)
+        public void UpdateNodePosition(Node node, Vector2 newPosition)
         {
+            node.Position.position = newPosition;
+            SaveGraph(GraphData);
+        }
+
+        public void CollapseNode(Node node)
+        {
+            node.IsCollapsed = !node.IsCollapsed;
             SaveGraph(GraphData);
         }
 
