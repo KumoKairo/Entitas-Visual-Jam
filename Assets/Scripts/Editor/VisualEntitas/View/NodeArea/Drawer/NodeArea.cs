@@ -117,7 +117,7 @@ namespace Entitas.Visual.View.Drawer
                         GUIHelper.DrawQuad(fieldBackdropPosition, StyleProxy.TransparentBlackColor);
                     }
 
-                    var fieldTextSize = StyleProxy.NodeFieldsTextStyle.CalcSize(new GUIContent(nodeField));
+                    var fieldTextSize = StyleProxy.NodeFieldNameStyle.CalcSize(new GUIContent(""));
                     var minusIconSize = new Vector2(30f, 30f);
 
                     var fieldTextPosition = new Rect(
@@ -139,10 +139,10 @@ namespace Entitas.Visual.View.Drawer
                     GUI.DrawTexture(minusIconPosition, StyleProxy.MinusIconTexture);
                     GUI.color = color;
 
-                    var splitType = nodeField.Split('.');
+                    var splitType = nodeField.Type.Split('.');
                     var displayFieldType = splitType[splitType.Length - 1];
 
-                    GUI.Box(fieldTextPosition, displayFieldType, StyleProxy.NodeFieldsTextStyle);
+                    GUI.Box(fieldTextPosition, displayFieldType, StyleProxy.NodeFieldNameStyle);
 
                     i += 1;
                 }
@@ -164,7 +164,7 @@ namespace Entitas.Visual.View.Drawer
             var fullBackdropPosition = new Rect(nodePosition.position.x, nodePosition.y + titleHeight, nodePosition.width, fieldsBlockHeight);
             GUIHelper.DrawQuad(fullBackdropPosition, StyleProxy.SemiTransparentBlackColor);
 
-            var fieldsTextSize = StyleProxy.NodeFieldsTextStyle.CalcSize(new GUIContent("FIELDS"));
+            var fieldsTextSize = StyleProxy.NodeFieldNameStyle.CalcSize(new GUIContent("FIELDS"));
             var plusIconSize = new Vector2(30f, 30f);
 
             var plusIconPosition = new Rect(
@@ -175,7 +175,7 @@ namespace Entitas.Visual.View.Drawer
             );
 
             var color = GUI.color;
-            GUI.color = StyleProxy.NodeFieldsTextColor;
+            GUI.color = StyleProxy.NodeFieldNameTextColor;
             GUI.DrawTexture(plusIconPosition, StyleProxy.PlusIconTexture);
             GUI.color = color;
 
@@ -186,7 +186,7 @@ namespace Entitas.Visual.View.Drawer
                 fieldsTextSize.y
             );
 
-            GUI.Box(fieldsTextPosition, "FIELDS", StyleProxy.NodeFieldsTextStyle);
+            GUI.Box(fieldsTextPosition, "FIELDS", StyleProxy.NodeFieldNameStyle);
 
             if (plusIconPosition.Contains(current.mousePosition) && current.type == EventType.MouseDown &&
                 current.button == 0)

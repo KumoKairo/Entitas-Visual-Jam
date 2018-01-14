@@ -44,7 +44,9 @@ namespace Entitas.Visual.View.Drawer
             newDragPosition = SnapDragPositionToGrid(_initialDragPosition + _draggingOffset);
 
             var currentMousePosition = currentEvent.mousePosition;
-            if (_lastDrawRect.Contains(currentMousePosition) && currentEvent.type == EventType.MouseDown)
+            if (_lastDrawRect.Contains(currentMousePosition) 
+                && currentEvent.type == EventType.MouseDown 
+                && currentEvent.button == 0)
             {
                 _initialDragPosition = currentMousePosition;
                 _draggingOffset = _lastDrawRect.position - currentMousePosition;
@@ -52,7 +54,7 @@ namespace Entitas.Visual.View.Drawer
                 currentEvent.Use();
             }
 
-            if (GUIUtility.hotControl == DragControlId)
+            if (GUIUtility.hotControl == DragControlId && currentEvent.button == 0)
             {
                 switch (currentEvent.type)
                 {

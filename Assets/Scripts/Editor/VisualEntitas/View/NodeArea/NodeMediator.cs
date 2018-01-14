@@ -1,4 +1,5 @@
-﻿using Entitas.Visual.Model.VO;
+﻿using System;
+using Entitas.Visual.Model.VO;
 using Entitas.Visual.Utils;
 using Entitas.Visual.View.Drawer;
 using UnityEditor;
@@ -16,6 +17,9 @@ namespace Entitas.Visual.View
         private NodeTitleDrawer _nodeTitleDrawer;
         private NodeFieldsAdditonWidgetDrawer _nodeFieldsAdditonWidgetDrawer;
         private NodeCollapseChevronDrawer _nodeCollapseChevronDrawer;
+        private NodeFieldsDrawer _nodeFieldsDrawer;
+
+        private GenericMenu _addFieldsGenericMenu;
 
         public NodeMediator(string name, Node node, EditorWindow viewComponent) : base(name, viewComponent)
         {
@@ -24,6 +28,7 @@ namespace Entitas.Visual.View
             _nodeTitleDrawer = new NodeTitleDrawer();
             _nodeFieldsAdditonWidgetDrawer = new NodeFieldsAdditonWidgetDrawer();
             _nodeCollapseChevronDrawer = new NodeCollapseChevronDrawer();
+            _nodeFieldsDrawer = new NodeFieldsDrawer();
         }
 
         protected override void OnGUI(EditorWindow appView)
@@ -50,6 +55,8 @@ namespace Entitas.Visual.View
 
             var fieldsRect = new Rect(nodeRect.x, addFieldsRect.y + addFieldsRect.height, nodeRect.width,
                 fieldLineHeight * Node.Fields.Count);
+            fieldsRect.height = isNodeCollapsed ? 0f : fieldsRect.height;
+
             var chevronRect = new Rect(nodeRect.x, fieldsRect.y + fieldsRect.height, nodeRect.width, chevronBackdropHeight);
 
             if (isNodeCollapsed)
@@ -66,6 +73,7 @@ namespace Entitas.Visual.View
             if (!isNodeCollapsed)
             {
                 _nodeFieldsAdditonWidgetDrawer.OnGUI(appView, addFieldsRect);
+                _nodeFieldsDrawer.OnGUI(fieldsRect, fieldLineHeight, Node);
             }
 
             _nodeCollapseChevronDrawer.OnGUI(appView, chevronRect, isNodeCollapsed);
@@ -85,8 +93,20 @@ namespace Entitas.Visual.View
                 SendNotification(NodeAreaMediator.NodeCollapse, Node);
             }
 
+            if (_addFieldsGenericMenu == null)
+            {
+                _addFieldsGenericMenu = new GenericMenu();
+                _addFieldsGenericMenu.AddItem(new GUIContent("float"), false, () => { OnAddFieldToNode(typeof(float)); });
+                _addFieldsGenericMenu.AddItem(new GUIContent("int"), false, () => { OnAddFieldToNode(typeof(int)); });
+                _addFieldsGenericMenu.AddItem(new GUIContent("string"), false, () => { OnAddFieldToNode(typeof(string)); });
+                _addFieldsGenericMenu.AddItem(new GUIContent("Vector3"), false, () => { OnAddFieldToNode(typeof(Vector3)); });
+                _addFieldsGenericMenu.AddItem(new GUIContent("Vector2"), false, () => { OnAddFieldToNode(typeof(Vector2)); });
+            }
+
+            _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
+
             Vector2 dragNodePosition;
-            var isNodeDraggedOrCompletedDragging = _nodeBackgroundDrawer.HandleDrag(currentEvent, out dragNodePosition);
+            Tuple<bool, bool> isNodeDraggedOrCompletedDragging = _nodeBackgroundDrawer.HandleDrag(currentEvent, out dragNodePosition);
 
             if (isNodeDraggedOrCompletedDragging.First)
             {
@@ -97,11 +117,15 @@ namespace Entitas.Visual.View
                 SendNotification(NodeAreaMediator.NodePositionUpdate, new Tuple<Node, Vector2>(Node, dragNodePosition));
             }
 
-
             if (chevronPressed || isNodeDraggedOrCompletedDragging.First)
             {
                 appView.Repaint();
             }
+        }
+
+        private void OnAddFieldToNode(Type fieldType)
+        {
+            SendNotification(NodeAreaMediator.AddNewNodeField, new Tuple<Node, Type>(Node, fieldType));
         }
     }
 }

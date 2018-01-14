@@ -39,7 +39,7 @@ namespace Entitas.Visual.Model
         {
             var newNode = new Node
             {
-                Position = new Rect(mousePosition, new Vector2(160f, 80f))
+                Position = new Rect(mousePosition, new Vector2(240f, 80f))
             };
             GraphData.Nodes.Add(newNode);
             SaveGraph(GraphData);
@@ -69,7 +69,7 @@ namespace Entitas.Visual.Model
 
         public void AddFieldToNode(Node node, Type type)
         {
-            node.Fields.Add(type.FullName);
+            node.Fields.Add(new Field("newField", type.FullName));
             SaveGraph(GraphData);
         }
 

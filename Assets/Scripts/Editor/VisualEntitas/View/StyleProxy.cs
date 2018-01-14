@@ -75,24 +75,45 @@ namespace Entitas.Visual.View
             }
         }
 
-        public static Color NodeFieldsTextColor = new Color32(163, 202, 229, 255);
-        private static object _nodeFieldsTextStyle;
-        public static GUIStyle NodeFieldsTextStyle
+        public static Color NodeFieldNameTextColor = new Color32(163, 202, 229, 255);
+        private static object _nodeFieldNameStyle;
+        public static GUIStyle NodeFieldNameStyle
         {
             get
             {
-                _nodeFieldsTextStyle = _nodeFieldsTextStyle ?? new GUIStyle
+                _nodeFieldNameStyle = _nodeFieldNameStyle ?? new GUIStyle
                 {
                     normal =
                     {
                         background = null,
-                        textColor = NodeFieldsTextColor
+                        textColor = NodeFieldNameTextColor
                     },
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-SemiBold.ttf"),
                     fontSize = 14
                 };
 
-                return (GUIStyle)_nodeFieldsTextStyle;
+                return (GUIStyle)_nodeFieldNameStyle;
+            }
+        }
+
+        public static Color NodeFieldTypeNameColor = new Color32(190, 133, 213, 255);
+        private static object _nodeFieldTypeStyle;
+        public static GUIStyle NodeFieldTypeStyle
+        {
+            get
+            {
+                _nodeFieldTypeStyle = _nodeFieldTypeStyle ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeFieldTypeNameColor
+                    },
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Medium.ttf"),
+                    fontSize = 14
+                };
+
+                return (GUIStyle)_nodeFieldTypeStyle;
             }
         }
 

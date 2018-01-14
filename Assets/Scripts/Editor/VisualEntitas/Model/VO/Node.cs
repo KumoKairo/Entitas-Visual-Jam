@@ -12,6 +12,6 @@ namespace Entitas.Visual.Model.VO
         public Rect Position;
 
         public string Name = "NewComponent";
-        public List<string> Fields = new List<string>();
+        public List<Field> Fields = new List<Field>();
     }
 }
