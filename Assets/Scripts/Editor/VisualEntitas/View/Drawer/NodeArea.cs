@@ -265,7 +265,7 @@ namespace Entitas.Visual.View.Drawer
 
         private void HandleDrag(Node mouseOverNode, Event current, EditorWindow window)
         {
-            var newPosition = SnapPositionToGrid();
+            var newPosition = SnapDragPositionToGrid(_initialDragPosition + _draggingOffset);
 
             switch (current.type)
             {
@@ -303,17 +303,15 @@ namespace Entitas.Visual.View.Drawer
             }
         }
 
-        private Vector2 SnapPositionToGrid()
+        private Vector2 SnapDragPositionToGrid(Vector2 position)
         {
             var gridSnap = new Vector2(16f, 16f);
 
-            var newPosition = _initialDragPosition + _draggingOffset;
             var snapIncrements = new Vector2(
-                Mathf.Round(newPosition.x / gridSnap.x),
-                Mathf.Round(newPosition.y / gridSnap.y));
+                Mathf.Round(position.x / gridSnap.x),
+                Mathf.Round(position.y / gridSnap.y));
 
-            newPosition = new Vector2(snapIncrements.x * gridSnap.x, snapIncrements.y * gridSnap.y);
-            return newPosition;
+            return new Vector2(snapIncrements.x * gridSnap.x, snapIncrements.y * gridSnap.y);
         }
 
         private void HandleRightClick(Node mouseOverNode, Event current, Rect nodeAreaRect)
@@ -361,7 +359,7 @@ namespace Entitas.Visual.View.Drawer
         {
             if (CreateNewComponentEvent != null)
             {
-                CreateNewComponentEvent(_lastMousePosition);
+                CreateNewComponentEvent(SnapDragPositionToGrid(_lastMousePosition));
             }
         }
 

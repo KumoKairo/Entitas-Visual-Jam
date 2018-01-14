@@ -4,6 +4,7 @@ using Entitas.Visual.Model.VO;
 using Entitas.Visual.View.Drawer;
 using UnityEditor;
 using UnityEngine;
+using Entitas.Visual.Utils;
 
 namespace Entitas.Visual.View
 {
@@ -11,8 +12,13 @@ namespace Entitas.Visual.View
     {
         public const string Name = "NodeAreaMediator";
 
+        public const string CreateNewComponent = "Node_CreateNewComponent";
+        public const string AddNewNodeField = "Node_AddNewField";
+        public const string NodePositionUpdate = "Node_PositionUpdate";
+        public const string NodeRemove = "Node_Remove";
+        public const string NodeCollapse = "Node_Collapse";
+
         private NodeArea _nodeArea;
-        private GraphProxy _graphProxy;
 
         public NodeAreaMediator(EditorWindow parentWindow) : base(Name, parentWindow)
         {
@@ -20,8 +26,8 @@ namespace Entitas.Visual.View
 
         public override void OnRegister()
         {
-            _graphProxy = (GraphProxy) Facade.RetrieveProxy(GraphProxy.Name);
-            _nodeArea = new NodeArea(_graphProxy);
+            var graphProxy = (GraphProxy) Facade.RetrieveProxy(GraphProxy.Name);
+            _nodeArea = new NodeArea(graphProxy);
 
             _nodeArea.CreateNewComponentEvent += OnCreateNewComponent;
             _nodeArea.NodeRemovedEvent += OnNodeRemove;
@@ -48,12 +54,13 @@ namespace Entitas.Visual.View
 
         private void OnCreateNewComponent(Vector2 mousePosition)
         {
-            _graphProxy.AddNewNode(mousePosition);
+            SendNotification(CreateNewComponent, mousePosition);
         }
 
         private void OnNodeAddedField(Node node, Type type)
         {
-            _graphProxy.AddFieldToNode(node, type);
+            SendNotification(CreateNewComponent, new Tuple<Node, Type>(node, type));
+            //_graphProxy.AddFieldToNode(node, type);
         }
 
         private void OnNodePositionUpdated(Node node, Vector2 newPosition, bool isCompleted)
@@ -61,18 +68,21 @@ namespace Entitas.Visual.View
             node.Position.position = newPosition;
             if (isCompleted)
             {
-                _graphProxy.UpdateNodePosition(node, newPosition);
+                SendNotification(NodePositionUpdate, new Tuple<Node, Vector2, bool>(node, newPosition, isCompleted));
+                //_graphProxy.UpdateNodePosition(node, newPosition);
             }
         }
 
         private void OnNodeRemove(Node node)
         {
-            _graphProxy.RemoveNode(node);
+            SendNotification(NodeRemove, node);
+            //_graphProxy.RemoveNode(node);
         }
 
         private void OnNodeCollapsed(Node node)
         {
-            _graphProxy.CollapseNode(node);
+            SendNotification(NodeCollapse, node);
+           // _graphProxy.CollapseNode(node);
         }
     }
 }

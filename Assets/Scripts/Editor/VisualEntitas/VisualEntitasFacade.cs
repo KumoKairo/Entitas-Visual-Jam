@@ -1,4 +1,6 @@
 ﻿using Entitas.Visual.Controller;
+using Entitas.Visual.Controller.Graph.Node;
+using Entitas.Visual.View;
 using PureMVC.Interfaces;
 using PureMVC.Patterns.Facade;
 using PureMVC.Utils;
@@ -18,8 +20,11 @@ namespace Entitas.Visual
         protected override void InitializeController()
         {
             base.InitializeController();
+
             RegisterCommand(Startup, () => new StartupCommand());
             RegisterCommand(Teardown, () => new TeardownCommand());
+
+            RegisterCommand(NodeAreaMediator.CreateNewComponent, () => new CreateNewGraphNodeCommand());
         }
 
         public void Start(EditorWindow mainWindow)
