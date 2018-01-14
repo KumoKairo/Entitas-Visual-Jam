@@ -11,7 +11,7 @@ namespace Entitas.Visual.Model.VO
         public bool IsCollapsed;
         public Rect Position;
 
-        public string Name;
+        public string Name = "NewComponent";
         public List<string> Fields = new List<string>();
     }
 }

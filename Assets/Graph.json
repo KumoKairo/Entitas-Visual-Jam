@@ -1,1 +1,1 @@
-{"Nodes":[{"IsCollapsed":true,"Position":{"serializedVersion":"2","x":224.0,"y":32.0,"width":160.0,"height":80.0},"Name":"","Fields":["System.Single","System.String","UnityEngine.Vector3","System.Single","System.String","System.String"]},{"IsCollapsed":false,"Position":{"serializedVersion":"2","x":32.0,"y":32.0,"width":160.0,"height":80.0},"Name":"","Fields":["System.Single","System.String","UnityEngine.Vector2"]}]}
+{"Nodes":[{"IsCollapsed":false,"Position":{"serializedVersion":"2","x":64.0,"y":96.0,"width":160.0,"height":80.0},"Name":"NewComponent","Fields":[]}]}

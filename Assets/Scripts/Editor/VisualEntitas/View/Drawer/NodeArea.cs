@@ -28,6 +28,7 @@ namespace Entitas.Visual.View.Drawer
         private Vector2 _initialDragPosition;
         private Vector2 _draggingOffset;
         private GenericMenu _addFieldsGenericMenu;
+        private bool _isRenaming;
 
         public NodeArea(GraphProxy graphProxy)
         {
@@ -243,14 +244,14 @@ namespace Entitas.Visual.View.Drawer
             var titleBackdropBox = new Rect(node.Position.position, new Vector2(node.Position.width, titleHeight));
             GUIHelper.DrawQuad(titleBackdropBox, StyleProxy.NodeTitleBackdropColor);
 
-            var titleBlockSize = StyleProxy.NodeTitleTextStyle.CalcSize(new GUIContent("NODE"));
+            var titleBlockSize = StyleProxy.NodeTitleTextStyle.CalcSize(new GUIContent(node.Name));
             var titlePosition = new Rect(
                 node.Position.x + node.Position.width * 0.5f - titleBlockSize.x * 0.5f,
                 node.Position.y + 6f,
                 titleBlockSize.x,
                 16f);
 
-            GUI.Box(titlePosition, "NODE", StyleProxy.NodeTitleTextStyle);
+            GUI.Box(titlePosition, node.Name, StyleProxy.NodeTitleTextStyle);
 
             var subtitleBlockSize = StyleProxy.NodeSubtitleTextStyle.CalcSize(new GUIContent("COMPONENT"));
             var subtitlePosition = new Rect(
@@ -350,6 +351,8 @@ namespace Entitas.Visual.View.Drawer
             if (_nodeContextMenu == null)
             {
                 _nodeContextMenu = new GenericMenu();
+                _nodeContextMenu.AddItem(new GUIContent("Rename"), false, OnRenameNodeMenuSelected);
+                _nodeContextMenu.AddSeparator("");
                 _nodeContextMenu.AddItem(new GUIContent("Remove"), false, OnRemoveNodeMenuSelected);
             }
         }
@@ -360,6 +363,11 @@ namespace Entitas.Visual.View.Drawer
             {
                 CreateNewComponentEvent(_lastMousePosition);
             }
+        }
+
+        private void OnRenameNodeMenuSelected()
+        {
+            Debug.LogWarning("Renaming is not implemented");
         }
 
         private void OnRemoveNodeMenuSelected()
