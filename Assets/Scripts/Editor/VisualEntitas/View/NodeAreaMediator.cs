@@ -59,8 +59,7 @@ namespace Entitas.Visual.View
 
         private void OnNodeAddedField(Node node, Type type)
         {
-            SendNotification(CreateNewComponent, new Tuple<Node, Type>(node, type));
-            //_graphProxy.AddFieldToNode(node, type);
+            SendNotification(AddNewNodeField, new Tuple<Node, Type>(node, type));
         }
 
         private void OnNodePositionUpdated(Node node, Vector2 newPosition, bool isCompleted)
@@ -68,21 +67,18 @@ namespace Entitas.Visual.View
             node.Position.position = newPosition;
             if (isCompleted)
             {
-                SendNotification(NodePositionUpdate, new Tuple<Node, Vector2, bool>(node, newPosition, isCompleted));
-                //_graphProxy.UpdateNodePosition(node, newPosition);
+                SendNotification(NodePositionUpdate, new Tuple<Node, Vector2>(node, newPosition));
             }
         }
 
         private void OnNodeRemove(Node node)
         {
             SendNotification(NodeRemove, node);
-            //_graphProxy.RemoveNode(node);
         }
 
         private void OnNodeCollapsed(Node node)
         {
             SendNotification(NodeCollapse, node);
-           // _graphProxy.CollapseNode(node);
         }
     }
 }

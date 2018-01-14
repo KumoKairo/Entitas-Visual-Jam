@@ -3,9 +3,9 @@ using PureMVC.Interfaces;
 using PureMVC.Patterns.Command;
 using UnityEngine;
 
-namespace Entitas.Visual.Controller.Graph.Node
+namespace Entitas.Visual.Controller.Graph
 {
-    public class CreateNewGraphNodeCommand : SimpleCommand
+    public class ComponentNodeCreateNewCommand : SimpleCommand
     {
         public override void Execute(INotification notification)
         {

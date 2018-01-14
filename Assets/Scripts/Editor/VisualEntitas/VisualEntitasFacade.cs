@@ -1,9 +1,7 @@
 ﻿using Entitas.Visual.Controller;
-using Entitas.Visual.Controller.Graph.Node;
+using Entitas.Visual.Controller.Graph;
 using Entitas.Visual.View;
-using PureMVC.Interfaces;
 using PureMVC.Patterns.Facade;
-using PureMVC.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,7 +22,11 @@ namespace Entitas.Visual
             RegisterCommand(Startup, () => new StartupCommand());
             RegisterCommand(Teardown, () => new TeardownCommand());
 
-            RegisterCommand(NodeAreaMediator.CreateNewComponent, () => new CreateNewGraphNodeCommand());
+            RegisterCommand(NodeAreaMediator.CreateNewComponent, () => new ComponentNodeCreateNewCommand());
+            RegisterCommand(NodeAreaMediator.AddNewNodeField, () => new NodeAddNewFieldCommand());
+            RegisterCommand(NodeAreaMediator.NodePositionUpdate, () => new NodeUpdatePositionCommand());
+            RegisterCommand(NodeAreaMediator.NodeRemove, () => new NodeRemoveCommand());
+            RegisterCommand(NodeAreaMediator.NodeCollapse, () => new NodeCollapseCommand());
         }
 
         public void Start(EditorWindow mainWindow)
