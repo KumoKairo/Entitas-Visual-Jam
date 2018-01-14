@@ -22,17 +22,22 @@ namespace Entitas.Visual.View
         {
             _graphProxy = (GraphProxy) Facade.RetrieveProxy(GraphProxy.Name);
             _nodeArea = new NodeArea(_graphProxy);
+
             _nodeArea.CreateNewComponentEvent += OnCreateNewComponent;
             _nodeArea.NodeRemovedEvent += OnNodeRemove;
             _nodeArea.NodeUpdatedPositionEvent += OnNodePositionUpdated;
             _nodeArea.NodeCollapsedEvent += OnNodeCollapsed;
+            _nodeArea.NodeAddedFieldEvent += OnNodeAddedField;
         }
-        
+
         public override void OnRemove()
         {
             _nodeArea.CreateNewComponentEvent -= OnCreateNewComponent;
             _nodeArea.NodeRemovedEvent -= OnNodeRemove;
             _nodeArea.NodeUpdatedPositionEvent -= OnNodePositionUpdated;
+            _nodeArea.NodeCollapsedEvent -= OnNodeCollapsed;
+            _nodeArea.NodeAddedFieldEvent -= OnNodeAddedField;
+
             _nodeArea = null;
         }
 
@@ -44,6 +49,11 @@ namespace Entitas.Visual.View
         private void OnCreateNewComponent(Vector2 mousePosition)
         {
             _graphProxy.AddNewNode(mousePosition);
+        }
+
+        private void OnNodeAddedField(Node node, Type type)
+        {
+            _graphProxy.AddFieldToNode(node, type);
         }
 
         private void OnNodePositionUpdated(Node node, Vector2 newPosition, bool isCompleted)

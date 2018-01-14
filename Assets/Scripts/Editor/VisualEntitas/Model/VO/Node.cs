@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Entitas.Visual.Model.VO
 {
@@ -11,6 +12,6 @@ namespace Entitas.Visual.Model.VO
         public Rect Position;
 
         public string Name;
-        public string[] Fields;
+        public List<string> Fields = new List<string>();
     }
 }

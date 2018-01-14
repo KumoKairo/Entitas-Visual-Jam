@@ -13,6 +13,7 @@ namespace Entitas.Visual.View.Drawer
         public event Action<Vector2> CreateNewComponentEvent;
         public event Action<Node> NodeRemovedEvent;
         public event Action<Node> NodeCollapsedEvent;
+        public event Action<Node, Type> NodeAddedFieldEvent;
         public event Action<Node, Vector2, bool> NodeUpdatedPositionEvent;
 
         private GenericMenu _backdropContextMenu;
@@ -26,6 +27,7 @@ namespace Entitas.Visual.View.Drawer
 
         private Vector2 _initialDragPosition;
         private Vector2 _draggingOffset;
+        private GenericMenu _addFieldsGenericMenu;
 
         public NodeArea(GraphProxy graphProxy)
         {
@@ -67,11 +69,161 @@ namespace Entitas.Visual.View.Drawer
             Node mouseOverNode = null;
 
             float titleHeight = 48f;
+            float fieldsAdditionLineHeight = 32f;
+
+            float fieldLineHeight = 16f;
+
+            int fieldsCount = node.Fields.Count;
 
             var nodePosition = node.Position;
-            nodePosition.height = node.IsCollapsed ? titleHeight : nodePosition.height;
-
+            nodePosition.height = node.IsCollapsed ? titleHeight : titleHeight + fieldsAdditionLineHeight + fieldLineHeight * fieldsCount;
             GUIHelper.DrawQuad(nodePosition, StyleProxy.NodeBackgroundColor);
+
+            DrawTitle(node, titleHeight);
+
+            if (!node.IsCollapsed)
+            {
+                DrawFieldsAdditionLine(node, current, nodePosition, titleHeight, fieldsAdditionLineHeight);
+
+                int i = 1;
+                float startingFieldsY = nodePosition.y + titleHeight + 24f;
+
+                foreach (var nodeField in node.Fields)
+                {
+                    if (i % 2 == 0)
+                    {
+                        var fieldBackdropPosition = 
+                            new Rect(nodePosition.position.x, 
+                            startingFieldsY + fieldLineHeight * i - fieldLineHeight * 0.5f, 
+                            nodePosition.width, fieldLineHeight + 2f);
+
+                        GUIHelper.DrawQuad(fieldBackdropPosition, StyleProxy.TransparentBlackColor);
+                    }
+
+                    var fieldTextSize = StyleProxy.NodeFieldsTextStyle.CalcSize(new GUIContent(nodeField));
+                    var minusIconSize = new Vector2(30f, 30f);
+
+                    var fieldTextPosition = new Rect(
+                        nodePosition.x + 16f,
+                        startingFieldsY + fieldLineHeight * i - fieldTextSize.y * 0.5f,
+                        fieldTextSize.x,
+                        fieldTextSize.y
+                    );
+
+                    var minusIconPosition = new Rect(
+                        nodePosition.x + nodePosition.width - minusIconSize.x,
+                        fieldTextPosition.y - fieldTextSize.y * 0.5f + 2f,
+                        minusIconSize.x,
+                        minusIconSize.y
+                    );
+
+                    var color = GUI.color;
+                    GUI.color = StyleProxy.MinusIconColor;
+                    GUI.DrawTexture(minusIconPosition, StyleProxy.MinusIconTexture);
+                    GUI.color = color;
+
+                    var splitType = nodeField.Split('.');
+                    var displayFieldType = splitType[splitType.Length - 1];
+
+                    GUI.Box(fieldTextPosition, displayFieldType, StyleProxy.NodeFieldsTextStyle);
+
+                    i += 1;
+                }
+            }
+
+            DrawCollapseChevron(node, current, window, nodePosition);
+
+            if (node.Position.Contains(current.mousePosition))
+            {
+                mouseOverNode = node;
+            }
+
+            return mouseOverNode;
+        }
+
+        private void DrawFieldsAdditionLine(Node node, Event current, Rect nodePosition, float titleHeight,
+            float fieldsBlockHeight)
+        {
+            var fullBackdropPosition = new Rect(nodePosition.position.x, nodePosition.y + titleHeight, nodePosition.width, fieldsBlockHeight);
+            GUIHelper.DrawQuad(fullBackdropPosition, StyleProxy.TransparentYellowColor);
+
+            var fieldsTextSize = StyleProxy.NodeFieldsTextStyle.CalcSize(new GUIContent("FIELDS"));
+            var plusIconSize = new Vector2(30f, 30f);
+
+            var plusIconPosition = new Rect(
+                nodePosition.x + nodePosition.width - plusIconSize.x,
+                nodePosition.y + titleHeight + 1f,
+                plusIconSize.x,
+                plusIconSize.y
+            );
+
+            var color = GUI.color;
+            GUI.color = StyleProxy.NodeFieldsTextColor;
+            GUI.DrawTexture(plusIconPosition, StyleProxy.PlusIconTexture);
+            GUI.color = color;
+
+            var fieldsTextPosition = new Rect(
+                nodePosition.x + 16f,
+                nodePosition.y + titleHeight + fieldsBlockHeight * 0.5f - fieldsTextSize.y * 0.5f,
+                fieldsTextSize.x,
+                fieldsTextSize.y
+            );
+
+            GUI.Box(fieldsTextPosition, "FIELDS", StyleProxy.NodeFieldsTextStyle);
+
+            if (plusIconPosition.Contains(current.mousePosition) && current.type == EventType.MouseDown &&
+                current.button == 0)
+            {
+                if (_addFieldsGenericMenu == null)
+                {
+                    _addFieldsGenericMenu = new GenericMenu();
+                    _addFieldsGenericMenu.AddItem(new GUIContent("float"), false, () => { OnAddField(typeof(float)); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent("int"), false, () => { OnAddField(typeof(int)); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent("string"), false, () => { OnAddField(typeof(string)); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent("Vector3"), false, () => { OnAddField(typeof(Vector3)); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent("Vector2"), false, () => { OnAddField(typeof(Vector2)); });
+                }
+                _lastSelectedNode = node;
+                _addFieldsGenericMenu.ShowAsContext();
+            }
+        }
+
+        private void DrawCollapseChevron(Node node, Event current, EditorWindow window, Rect nodePosition)
+        {
+            var chevronSize = new Vector2(32f, 32f);
+            var chevronPosition = new Rect(
+                new Vector2(
+                    nodePosition.x + nodePosition.width * 0.5f - chevronSize.x * 0.5f,
+                    nodePosition.y + nodePosition.height - chevronSize.y * 0.25f
+                ),
+                chevronSize);
+
+            var chevronBackdropPosition =
+                new Rect(nodePosition.x, nodePosition.y + nodePosition.height, nodePosition.width, 16f);
+            chevronBackdropPosition.x = node.Position.x;
+            chevronBackdropPosition.width = node.Position.width;
+
+            GUIHelper.DrawQuad(chevronBackdropPosition, StyleProxy.ChevronUpBackdropColorNormal);
+
+            if (chevronBackdropPosition.Contains(current.mousePosition) && current.type == EventType.MouseDown &&
+                current.button == 0)
+            {
+                if (NodeCollapsedEvent != null)
+                {
+                    NodeCollapsedEvent(node);
+                    window.Repaint();
+                    current.Use();
+                }
+            }
+
+            var color = GUI.color;
+            GUI.color = StyleProxy.ChevronUpColor;
+            GUI.DrawTexture(chevronPosition, node.IsCollapsed ? StyleProxy.ChevronDownTexture : StyleProxy.ChevronUpTexture);
+            GUI.color = color;
+        }
+
+        private void DrawTitle(Node node, float titleHeight)
+        {
             var titleBackdropBox = new Rect(node.Position.position, new Vector2(node.Position.width, titleHeight));
             GUIHelper.DrawQuad(titleBackdropBox, StyleProxy.NodeTitleBackdropColor);
 
@@ -92,42 +244,6 @@ namespace Entitas.Visual.View.Drawer
                 16f);
 
             GUI.Box(subtitlePosition, "COMPONENT", StyleProxy.NodeSubtitleTextStyle);
-
-            if (node.Position.Contains(current.mousePosition))
-            {
-                mouseOverNode = node;
-            }
-
-            var chevronSize = new Vector2(32f, 32f);
-            var chevronPosition = new Rect(
-                new Vector2(
-                    nodePosition.x + nodePosition.width * 0.5f - chevronSize.x * 0.5f,
-                    nodePosition.y + nodePosition.height - chevronSize.y * 0.25f
-                    ),
-                chevronSize);
-
-            var chevronBackdropPosition = new Rect(nodePosition.x, nodePosition.y + nodePosition.height, nodePosition.width, 16f);
-            chevronBackdropPosition.x = node.Position.x;
-            chevronBackdropPosition.width = node.Position.width;
-
-            GUIHelper.DrawQuad(chevronBackdropPosition, StyleProxy.ChevronUpBackdropColorNormal);
-
-            if (chevronBackdropPosition.Contains(current.mousePosition) && current.type == EventType.MouseDown && current.button == 0)
-            {
-                if (NodeCollapsedEvent != null)
-                {
-                    NodeCollapsedEvent(node);
-                    window.Repaint();
-                    current.Use();
-                }
-            }
-
-            var color = GUI.color;
-            GUI.color = StyleProxy.ChevronUpColor;
-            GUI.DrawTexture(chevronPosition, node.IsCollapsed ? StyleProxy.ChevronDownTexture : StyleProxy.ChevronUpTexture);
-            GUI.color = color;
-
-            return mouseOverNode;
         }
 
         private void HandleDrag(Node mouseOverNode, Event current, EditorWindow window)
@@ -197,6 +313,14 @@ namespace Entitas.Visual.View.Drawer
                 _backdropContextMenu.ShowAsContext();
                 _lastMousePosition = current.mousePosition;
                 current.Use();
+            }
+        }
+
+        private void OnAddField(Type fieldType)
+        {
+            if (NodeAddedFieldEvent != null)
+            {
+                NodeAddedFieldEvent(_lastSelectedNode, fieldType);
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Entitas.Visual.Model.VO;
 using PureMVC.Patterns.Proxy;
 using UnityEngine;
@@ -57,6 +58,12 @@ namespace Entitas.Visual.Model
         public void CollapseNode(Node node)
         {
             node.IsCollapsed = !node.IsCollapsed;
+            SaveGraph(GraphData);
+        }
+
+        public void AddFieldToNode(Node node, Type type)
+        {
+            node.Fields.Add(type.FullName);
             SaveGraph(GraphData);
         }
 

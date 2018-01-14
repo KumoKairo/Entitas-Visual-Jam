@@ -12,7 +12,7 @@ namespace Entitas.Visual.View
 
         public static Color OrangeDebugColor = new Color32(231, 76, 60, 100);
 
-        public static Color NodeTitleBackdropColor = new Color32(137, 204, 249, 200);
+        public static Color NodeTitleBackdropColor = new Color32(91, 222, 147, 255);
         public static Color NodeBackgroundColor = new Color32(38, 55, 72, 200);
 
         private static object _chevronUpTexture;
@@ -27,12 +27,14 @@ namespace Entitas.Visual.View
             get { return (Texture2D)(_chevronDownTexture = _chevronDownTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.chevron.down.png")); }
         }
 
+        public static Color TransparentYellowColor = new Color32(241, 196, 15, 20);
+        public static Color TransparentBlackColor = new Color32(0, 0, 0, 35);
         public static Color ChevronUpBackdropColorNormal = new Color32(52, 73, 94, 200);
         public static Color ChevronUpBackdropColorHover = new Color32(39, 174, 96, 255);
         public static Color ChevronUpColor = new Color32(22, 160, 133, 200);
         public static Color ChevronDownColor = new Color32(22, 160, 133, 200);
 
-        private static Color NodeTitleColor = new Color32(44, 50, 50, 255);
+        private static Color NodeTitleColor = new Color32(19, 40, 20, 255);
         private static object _nodeTitleTextStyle;
         public static GUIStyle NodeTitleTextStyle
         {
@@ -65,12 +67,47 @@ namespace Entitas.Visual.View
                         background = null,
                         textColor = NodeTitleColor
                     },
-                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Bold.ttf"),
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Medium.ttf"),
                     fontSize = 10
                 };
 
                 return (GUIStyle)_nodeSubtitleTextStyle;
             }
+        }
+
+        public static Color NodeFieldsTextColor = new Color32(163, 202, 229, 255);
+        private static object _nodeFieldsTextStyle;
+        public static GUIStyle NodeFieldsTextStyle
+        {
+            get
+            {
+                _nodeFieldsTextStyle = _nodeFieldsTextStyle ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeFieldsTextColor
+                    },
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-SemiBold.ttf"),
+                    fontSize = 14
+                };
+
+                return (GUIStyle)_nodeFieldsTextStyle;
+            }
+        }
+
+        public static Color MinusIconColor = new Color32(192, 57, 43, 255);
+
+        public static object _minusIconTexture;
+        public static Texture2D MinusIconTexture
+        {
+            get { return (Texture2D)(_minusIconTexture = _minusIconTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.minus.png")); }
+        }
+
+        public static object _plusIconTexture;
+        public static Texture2D PlusIconTexture
+        {
+            get { return (Texture2D)(_plusIconTexture = _plusIconTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.add.png")); }
         }
 
         public static int EditorMaterialTextureParameterName = Shader.PropertyToID("_MainTex");
