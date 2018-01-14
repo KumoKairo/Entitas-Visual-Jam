@@ -43,6 +43,7 @@ namespace Entitas.Visual.View.Drawer
         {
             if (currentEvent.type == EventType.MouseDown && currentEvent.button == 0 && _lastViewRect.Contains(currentEvent.mousePosition))
             {
+                currentEvent.Use();
                 addFieldsGenericMenu.ShowAsContext();
             }
         }

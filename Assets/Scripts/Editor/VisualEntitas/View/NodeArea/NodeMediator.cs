@@ -2,12 +2,13 @@
 using Entitas.Visual.Model.VO;
 using Entitas.Visual.Utils;
 using Entitas.Visual.View.Drawer;
+using PureMVC.Patterns.Mediator;
 using UnityEditor;
 using UnityEngine;
 
 namespace Entitas.Visual.View
 {
-    public class NodeMediator : OnGuiMediator
+    public class NodeMediator : Mediator
     {
         public const string Name = "NodeMediator";
 
@@ -20,6 +21,7 @@ namespace Entitas.Visual.View
         private NodeFieldsDrawer _nodeFieldsDrawer;
 
         private GenericMenu _addFieldsGenericMenu;
+        private GenericMenu _nodeContextGenericMenu;
 
         public NodeMediator(string name, Node node, EditorWindow viewComponent) : base(name, viewComponent)
         {
@@ -31,7 +33,7 @@ namespace Entitas.Visual.View
             _nodeFieldsDrawer = new NodeFieldsDrawer();
         }
 
-        protected override void OnGUI(EditorWindow appView)
+        public void OnGUI(EditorWindow appView)
         {
             PaintElements(appView);
             HandleEvents(appView);
@@ -103,6 +105,15 @@ namespace Entitas.Visual.View
                 _addFieldsGenericMenu.AddItem(new GUIContent("Vector2"), false, () => { OnAddFieldToNode(typeof(Vector2)); });
             }
 
+            if (_nodeContextGenericMenu == null)
+            {
+                _nodeContextGenericMenu = new GenericMenu();
+                _nodeContextGenericMenu.AddItem(new GUIContent("Rename"), false, OnRenameNode);
+                _nodeContextGenericMenu.AddSeparator("");
+                _nodeContextGenericMenu.AddItem(new GUIContent("Remove"), false, OnRemoveNode);
+            }
+
+            _nodeBackgroundDrawer.HandleRightClick(currentEvent, _nodeContextGenericMenu);
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
 
             Vector2 dragNodePosition;
@@ -126,6 +137,17 @@ namespace Entitas.Visual.View
         private void OnAddFieldToNode(Type fieldType)
         {
             SendNotification(NodeAreaMediator.AddNewNodeField, new Tuple<Node, Type>(Node, fieldType));
+        }
+
+        private void OnRemoveNode()
+        {
+            SendNotification(NodeAreaMediator.NodeRemove, Node);
+            ((EditorWindow) ViewComponent).Repaint();
+        }
+
+        private void OnRenameNode()
+        {
+            Debug.LogWarning("Renaming is not supported yet");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Atrox;
 using Entitas.Visual.Model.VO;
 using PureMVC.Patterns.Proxy;
 using UnityEngine;
@@ -39,7 +40,8 @@ namespace Entitas.Visual.Model
         {
             var newNode = new Node
             {
-                Position = new Rect(mousePosition, new Vector2(240f, 80f))
+                Position = new Rect(mousePosition, new Vector2(240f, 80f)),
+                Name = Haikunator.Random()
             };
             GraphData.Nodes.Add(newNode);
             SaveGraph(GraphData);
@@ -49,10 +51,13 @@ namespace Entitas.Visual.Model
 
         public void RemoveNode(Node node)
         {
-            var removedNode = GraphData.Nodes.Remove(node);
-            SaveGraph(GraphData);
+            var isRemoved = GraphData.Nodes.Remove(node);
 
-            SendNotification(NodeRemoved, removedNode);
+            if (isRemoved)
+            {
+                SaveGraph(GraphData);
+                SendNotification(NodeRemoved, node);
+            }
         }
 
         public void UpdateNodePosition(Node node, Vector2 newPosition)
@@ -69,7 +74,7 @@ namespace Entitas.Visual.Model
 
         public void AddFieldToNode(Node node, Type type)
         {
-            node.Fields.Add(new Field("newField", type.FullName));
+            node.Fields.Add(new Field(Haikunator.Random(), type.FullName));
             SaveGraph(GraphData);
         }
 

@@ -346,13 +346,6 @@ namespace Entitas.Visual.View.Drawer
                 _backdropContextMenu = new GenericMenu();
                 _backdropContextMenu.AddItem(new GUIContent("Component"), false, OnCreateComponentMenuSelected);
             }
-            if (_nodeContextMenu == null)
-            {
-                _nodeContextMenu = new GenericMenu();
-                _nodeContextMenu.AddItem(new GUIContent("Rename"), false, OnRenameNodeMenuSelected);
-                _nodeContextMenu.AddSeparator("");
-                _nodeContextMenu.AddItem(new GUIContent("Remove"), false, OnRemoveNodeMenuSelected);
-            }
         }
 
         private void OnCreateComponentMenuSelected()

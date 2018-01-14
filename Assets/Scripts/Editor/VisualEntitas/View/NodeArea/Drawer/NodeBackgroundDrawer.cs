@@ -6,12 +6,11 @@ namespace Entitas.Visual.View.Drawer
 {
     public class NodeBackgroundDrawer
     {
-        private static int DragControlId = "NodeBackgroundDrawerHotControlId".GetHashCode(); 
-
         private Rect _lastDrawRect;
 
         private Vector2 _initialDragPosition;
         private Vector2 _draggingOffset;
+        private bool _isDragging;
 
         public void OnGUI(EditorWindow appView, Rect viewBounds, float chevronBackdropHeight)
         {
@@ -40,8 +39,7 @@ namespace Entitas.Visual.View.Drawer
         public Tuple<bool, bool> HandleDrag(Event currentEvent, out Vector2 newDragPosition)
         {
             var returnValue = new Tuple<bool, bool>(false, false);
-
-            newDragPosition = SnapDragPositionToGrid(_initialDragPosition + _draggingOffset);
+            newDragPosition = NodeAreaMediator.SnapDragPositionToGrid(_initialDragPosition + _draggingOffset);
 
             var currentMousePosition = currentEvent.mousePosition;
             if (_lastDrawRect.Contains(currentMousePosition) 
@@ -50,11 +48,11 @@ namespace Entitas.Visual.View.Drawer
             {
                 _initialDragPosition = currentMousePosition;
                 _draggingOffset = _lastDrawRect.position - currentMousePosition;
-                GUIUtility.hotControl = DragControlId;
+                _isDragging = true;
                 currentEvent.Use();
             }
 
-            if (GUIUtility.hotControl == DragControlId && currentEvent.button == 0)
+            if (_isDragging && currentEvent.button == 0)
             {
                 switch (currentEvent.type)
                 {
@@ -64,6 +62,7 @@ namespace Entitas.Visual.View.Drawer
                         returnValue.First = true;
                         return returnValue;
                     case EventType.MouseUp:
+                        _isDragging = false;
                         currentEvent.Use();
                         returnValue.Second = true;
                         GUIUtility.hotControl = 0;
@@ -74,15 +73,14 @@ namespace Entitas.Visual.View.Drawer
             return returnValue;
         }
 
-        private Vector2 SnapDragPositionToGrid(Vector2 position)
+        public void HandleRightClick(Event currentEvent, GenericMenu rightClickNodeMenu)
         {
-            var gridSnap = new Vector2(16f, 16f);
-
-            var snapIncrements = new Vector2(
-                Mathf.Round(position.x / gridSnap.x),
-                Mathf.Round(position.y / gridSnap.y));
-
-            return new Vector2(snapIncrements.x * gridSnap.x, snapIncrements.y * gridSnap.y);
+            if (currentEvent.type == EventType.MouseDown && currentEvent.button == 1 &&
+                _lastDrawRect.Contains(currentEvent.mousePosition))
+            {
+                currentEvent.Use();
+                rightClickNodeMenu.ShowAsContext();
+            }
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Entitas.Visual.Model;
 using Entitas.Visual.Model.VO;
 using Entitas.Visual.View.Drawer;
+using PureMVC.Interfaces;
 using UnityEditor;
 using UnityEngine;
-using Entitas.Visual.Utils;
 
 namespace Entitas.Visual.View
 {
@@ -19,9 +20,10 @@ namespace Entitas.Visual.View
         public const string NodeRemove = "Node_Remove";
         public const string NodeCollapse = "Node_Collapse";
 
-        private NodeArea _nodeArea;
-
+        private NodeAreaBackgroundDrawer _backgroundDrawer;
         private List<NodeMediator> _nodeMediators;
+
+        private GenericMenu _backdropContextMenu;
 
         public NodeAreaMediator(EditorWindow parentWindow) : base(Name, parentWindow)
         {
@@ -29,6 +31,8 @@ namespace Entitas.Visual.View
 
         public override void OnRegister()
         {
+            _backgroundDrawer = new NodeAreaBackgroundDrawer();
+
             var graphProxy = (GraphProxy) Facade.RetrieveProxy(GraphProxy.Name);
             var nodes = graphProxy.GraphData.Nodes;
             _nodeMediators = new List<NodeMediator>(nodes.Count);
@@ -36,63 +40,116 @@ namespace Entitas.Visual.View
             for (int i = 0; i < nodes.Count; i++)
             {
                 var node = nodes[i];
-                var mediator = new NodeMediator(NodeMediator.Name + i, node, (EditorWindow) ViewComponent);
-                _nodeMediators.Add(mediator);
-                Facade.RegisterMediator(mediator);
+                RegisterNewMediatorFor(i, node);
             }
-
-            //_nodeArea = new NodeArea(graphProxy);
-
-            //_nodeArea.CreateNewComponentEvent += OnCreateNewComponent;
-            //_nodeArea.NodeRemovedEvent += OnNodeRemove;
-            //_nodeArea.NodeUpdatedPositionEvent += OnNodePositionUpdated;
-            //_nodeArea.NodeCollapsedEvent += OnNodeCollapsed;
-            //_nodeArea.NodeAddedFieldEvent += OnNodeAddedField;
-        }
-
-        public override void OnRemove()
-        {
-            //_nodeArea.CreateNewComponentEvent -= OnCreateNewComponent;
-            //_nodeArea.NodeRemovedEvent -= OnNodeRemove;
-            //_nodeArea.NodeUpdatedPositionEvent -= OnNodePositionUpdated;
-            //_nodeArea.NodeCollapsedEvent -= OnNodeCollapsed;
-            //_nodeArea.NodeAddedFieldEvent -= OnNodeAddedField;
-
-            //_nodeArea = null;
         }
 
         protected override void OnGUI(EditorWindow appView)
         {
-            //_nodeArea.OnGUI(appView);
-        }
-
-        private void OnCreateNewComponent(Vector2 mousePosition)
-        {
-            SendNotification(CreateNewComponent, mousePosition);
-        }
-
-        private void OnNodeAddedField(Node node, Type type)
-        {
-            SendNotification(AddNewNodeField, new Tuple<Node, Type>(node, type));
-        }
-
-        private void OnNodePositionUpdated(Node node, Vector2 newPosition, bool isCompleted)
-        {
-            node.Position.position = newPosition;
-            if (isCompleted)
+            foreach (var nodeMediator in _nodeMediators)
             {
-                SendNotification(NodePositionUpdate, new Tuple<Node, Vector2>(node, newPosition));
+                nodeMediator.OnGUI(appView);
+            }
+
+            var currentEvent = Event.current;
+            if (currentEvent.type == EventType.Repaint || currentEvent.type == EventType.Layout)
+            {
+                return;
+            }
+
+            if (_backdropContextMenu == null)
+            {
+                _backdropContextMenu = new GenericMenu();
+                _backdropContextMenu.AddItem(new GUIContent("Component"), false, OnCreateComponentMenuSelected);
+            }
+
+            _backgroundDrawer.HandleRightClick(appView.position, currentEvent, _backdropContextMenu);
+        }
+
+        private void RegisterNewMediatorFor(int i, Node node)
+        {
+            var mediator = new NodeMediator(NodeMediator.Name + i, node, (EditorWindow) ViewComponent);
+            _nodeMediators.Add(mediator);
+            Facade.RegisterMediator(mediator);
+        }
+
+        private void RemoveMediatorFor(Node node)
+        {
+            NodeMediator mediator = null;
+            foreach (var nodeMediator in _nodeMediators)
+            {
+                if (nodeMediator.Node == node)
+                {
+                    mediator = nodeMediator;
+                    break;
+                }
+            }
+
+            if (mediator != null)
+            {
+                _nodeMediators.Remove(mediator);
+                Facade.RemoveMediator(mediator.MediatorName);
             }
         }
 
-        private void OnNodeRemove(Node node)
+        public override void OnRemove()
         {
-            SendNotification(NodeRemove, node);
+            
         }
 
-        private void OnNodeCollapsed(Node node)
+        public override string[] ListNotificationInterests()
         {
-            SendNotification(NodeCollapse, node);
+            var parentNotifications = base.ListNotificationInterests();
+            var nodeNotifications = new[]
+            {
+                GraphProxy.NodeAdded,
+                GraphProxy.NodeRemoved
+            };
+
+            return parentNotifications.Concat(nodeNotifications).ToArray(); ;
+        }
+
+        public override void HandleNotification(INotification notification)
+        {
+            if (notification.Name != VisualEntitasFacade.OnGUI)
+            {
+                Debug.Log("Received " + notification.Name);
+            }
+
+            base.HandleNotification(notification);
+            Node payload = null;
+            switch (notification.Name)
+            {
+                case GraphProxy.NodeAdded:
+                    Debug.Log("Added node");
+                    payload = (Node) notification.Body;
+                    RegisterNewMediatorFor(_nodeMediators.Count, payload);
+                    AppView.Repaint();
+                    break;
+                case GraphProxy.NodeRemoved:
+                    Debug.Log("Removed node");
+                    payload = (Node)notification.Body;
+                    RemoveMediatorFor(payload);
+                    AppView.Repaint();
+                    break;
+            }
+        }
+
+        private void OnCreateComponentMenuSelected()
+        {
+            SendNotification(CreateNewComponent, _backgroundDrawer.LastClickPosition);
+            AppView.Repaint();
+        }
+
+        public static Vector2 SnapDragPositionToGrid(Vector2 position)
+        {
+            var gridSnap = new Vector2(16f, 16f);
+
+            var snapIncrements = new Vector2(
+                Mathf.Round(position.x / gridSnap.x),
+                Mathf.Round(position.y / gridSnap.y));
+
+            return new Vector2(snapIncrements.x * gridSnap.x, snapIncrements.y * gridSnap.y);
         }
     }
 }
