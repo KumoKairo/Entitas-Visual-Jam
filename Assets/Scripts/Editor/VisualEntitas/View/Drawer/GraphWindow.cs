@@ -38,8 +38,8 @@ namespace Entitas.Visual.View.Drawer
             Profiler.BeginSample("Draw grid");
             GL.PushMatrix();
             GL.Begin(GL.LINES);
-            this.DrawGridLines(12f, StyleProxy.DarkLineColorMinor, position);
-            this.DrawGridLines(120f, StyleProxy.DarkLineColorMajor, position);
+            this.DrawGridLines(16f, StyleProxy.DarkLineColorMinor, position);
+            this.DrawGridLines(80f, StyleProxy.DarkLineColorMajor, position);
             GL.End();
             GL.PopMatrix();
             Profiler.EndSample();

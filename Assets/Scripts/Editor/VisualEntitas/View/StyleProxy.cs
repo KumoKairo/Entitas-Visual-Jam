@@ -27,10 +27,12 @@ namespace Entitas.Visual.View
             get { return (Texture2D)(_chevronDownTexture = _chevronDownTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.chevron.down.png")); }
         }
 
-        public static Color ChevronUpBackdropColor = new Color32(52, 73, 94, 200);
-        public static Color ChevronUpColor = new Color32(211, 84, 0, 200);
-        public static Color ChevronDownColor = new Color32(39, 174, 96, 200);
+        public static Color ChevronUpBackdropColorNormal = new Color32(52, 73, 94, 200);
+        public static Color ChevronUpBackdropColorHover = new Color32(39, 174, 96, 255);
+        public static Color ChevronUpColor = new Color32(22, 160, 133, 200);
+        public static Color ChevronDownColor = new Color32(22, 160, 133, 200);
 
+        private static Color NodeTitleColor = new Color32(44, 50, 50, 255);
         private static object _nodeTitleTextStyle;
         public static GUIStyle NodeTitleTextStyle
         {
@@ -41,13 +43,33 @@ namespace Entitas.Visual.View
                     normal =
                     {
                         background = null,
-                        textColor = new Color32(55, 23, 20, 255)
+                        textColor = NodeTitleColor
                     },
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Bold.ttf"),
                     fontSize = 16
                 };
 
                 return (GUIStyle)_nodeTitleTextStyle;
+            }
+        }
+
+        private static object _nodeSubtitleTextStyle;
+        public static GUIStyle NodeSubtitleTextStyle
+        {
+            get
+            {
+                _nodeSubtitleTextStyle = _nodeSubtitleTextStyle ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeTitleColor
+                    },
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Bold.ttf"),
+                    fontSize = 10
+                };
+
+                return (GUIStyle)_nodeSubtitleTextStyle;
             }
         }
 

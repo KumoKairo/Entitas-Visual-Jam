@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Entitas.Visual.Model;
 using Entitas.Visual.Model.VO;
 using Entitas.Visual.Utils;
@@ -20,12 +21,15 @@ namespace Entitas.Visual.View.Drawer
         private Vector2 _lastMousePosition;
         private Node _lastSelectedNode;
         private Node _draggingNode;
+
+        private List<Node> _nodes;
+
+        private Vector2 _initialDragPosition;
         private Vector2 _draggingOffset;
-        private GraphProxy _graphProxy;
 
         public NodeArea(GraphProxy graphProxy)
         {
-            _graphProxy = graphProxy;
+            _nodes = graphProxy.GraphData.Nodes;
         }
 
         public void OnGUI(EditorWindow window)
@@ -34,10 +38,10 @@ namespace Entitas.Visual.View.Drawer
 
             var current = Event.current;
             Node mouseOverNode = null;
-            foreach (var node in _graphProxy.GraphData.Nodes)
+            foreach (var node in _nodes)
             {
                 var newMouseOverNode = DrawNode(node, current, window);
-                mouseOverNode = mouseOverNode ?? newMouseOverNode;
+                mouseOverNode = newMouseOverNode ?? mouseOverNode;
             }
 
             var nodeAreaRect = new Rect(0f, 16f, window.position.width, window.position.height);
@@ -62,7 +66,7 @@ namespace Entitas.Visual.View.Drawer
         {
             Node mouseOverNode = null;
 
-            float titleHeight = 32f;
+            float titleHeight = 48f;
 
             var nodePosition = node.Position;
             nodePosition.height = node.IsCollapsed ? titleHeight : nodePosition.height;
@@ -71,14 +75,24 @@ namespace Entitas.Visual.View.Drawer
             var titleBackdropBox = new Rect(node.Position.position, new Vector2(node.Position.width, titleHeight));
             GUIHelper.DrawQuad(titleBackdropBox, StyleProxy.NodeTitleBackdropColor);
 
-            var textBlockSize = StyleProxy.NodeTitleTextStyle.CalcSize(new GUIContent("NODE"));
-            var textPosition = new Rect(
-                node.Position.x + node.Position.width * 0.5f - textBlockSize.x * 0.5f,
-                node.Position.y + titleBackdropBox.height * 0.5f - textBlockSize.y * 0.5f,
-                textBlockSize.x,
+            var titleBlockSize = StyleProxy.NodeTitleTextStyle.CalcSize(new GUIContent("NODE"));
+            var titlePosition = new Rect(
+                node.Position.x + node.Position.width * 0.5f - titleBlockSize.x * 0.5f,
+                node.Position.y + 6f,
+                titleBlockSize.x,
                 16f);
 
-            GUI.Box(textPosition, "NODE", StyleProxy.NodeTitleTextStyle);
+            GUI.Box(titlePosition, "NODE", StyleProxy.NodeTitleTextStyle);
+
+            var subtitleBlockSize = StyleProxy.NodeSubtitleTextStyle.CalcSize(new GUIContent("COMPONENT"));
+            var subtitlePosition = new Rect(
+                node.Position.x + node.Position.width * 0.5f - subtitleBlockSize.x * 0.5f,
+                titleBackdropBox.y + titleBackdropBox.height - subtitleBlockSize.y - 6f,
+                subtitleBlockSize.x,
+                16f);
+
+            GUI.Box(subtitlePosition, "COMPONENT", StyleProxy.NodeSubtitleTextStyle);
+
             if (node.Position.Contains(current.mousePosition))
             {
                 mouseOverNode = node;
@@ -92,16 +106,13 @@ namespace Entitas.Visual.View.Drawer
                     ),
                 chevronSize);
 
-            var chevronBackdropPosition = chevronPosition.Offset(new Rect(-8f, 8f, 16f, -16f));
+            var chevronBackdropPosition = new Rect(nodePosition.x, nodePosition.y + nodePosition.height, nodePosition.width, 16f);
             chevronBackdropPosition.x = node.Position.x;
             chevronBackdropPosition.width = node.Position.width;
-            GUIHelper.DrawQuad(chevronBackdropPosition, StyleProxy.ChevronUpBackdropColor);
-            var color = GUI.color;
-            GUI.color = StyleProxy.ChevronUpColor;
-            GUI.DrawTexture(chevronPosition, node.IsCollapsed ? StyleProxy.ChevronDownTexture : StyleProxy.ChevronUpTexture);
-            GUI.color = color;
 
-            if (current.type == EventType.MouseDown && chevronBackdropPosition.Contains(current.mousePosition) && current.button == 0)
+            GUIHelper.DrawQuad(chevronBackdropPosition, StyleProxy.ChevronUpBackdropColorNormal);
+
+            if (chevronBackdropPosition.Contains(current.mousePosition) && current.type == EventType.MouseDown && current.button == 0)
             {
                 if (NodeCollapsedEvent != null)
                 {
@@ -111,17 +122,25 @@ namespace Entitas.Visual.View.Drawer
                 }
             }
 
+            var color = GUI.color;
+            GUI.color = StyleProxy.ChevronUpColor;
+            GUI.DrawTexture(chevronPosition, node.IsCollapsed ? StyleProxy.ChevronDownTexture : StyleProxy.ChevronUpTexture);
+            GUI.color = color;
+
             return mouseOverNode;
         }
 
         private void HandleDrag(Node mouseOverNode, Event current, EditorWindow window)
         {
+            var newPosition = SnapPositionToGrid();
+
             switch (current.type)
             {
                 case EventType.MouseDown:
                     if (mouseOverNode != null)
                     {
                         _draggingNode = mouseOverNode;
+                        _initialDragPosition = current.mousePosition;
                         _draggingOffset = mouseOverNode.Position.position - current.mousePosition;
                         current.Use();
                     }
@@ -130,7 +149,7 @@ namespace Entitas.Visual.View.Drawer
                 case EventType.MouseUp:
                     if (_draggingNode != null && NodeUpdatedPositionEvent != null)
                     {
-                        NodeUpdatedPositionEvent(_draggingNode, current.mousePosition + _draggingOffset, true);
+                        NodeUpdatedPositionEvent(_draggingNode, newPosition, true);
                     }
                     _draggingNode = null;
                     break;
@@ -139,16 +158,29 @@ namespace Entitas.Visual.View.Drawer
                 case EventType.MouseDrag:
                     if (_draggingNode != null)
                     {
-                        if(NodeUpdatedPositionEvent != null)
+                        _draggingOffset += current.delta;
+                        if (NodeUpdatedPositionEvent != null)
                         {
-                            NodeUpdatedPositionEvent(_draggingNode, current.mousePosition + _draggingOffset, false);
+                            NodeUpdatedPositionEvent(_draggingNode, newPosition, false);
                         }
                         current.Use();
                         window.Repaint();
                     }
                     break;
             }
+        }
 
+        private Vector2 SnapPositionToGrid()
+        {
+            var gridSnap = new Vector2(16f, 16f);
+
+            var newPosition = _initialDragPosition + _draggingOffset;
+            var snapIncrements = new Vector2(
+                Mathf.Round(newPosition.x / gridSnap.x),
+                Mathf.Round(newPosition.y / gridSnap.y));
+
+            newPosition = new Vector2(snapIncrements.x * gridSnap.x, snapIncrements.y * gridSnap.y);
+            return newPosition;
         }
 
         private void HandleRightClick(Node mouseOverNode, Event current, Rect nodeAreaRect)
