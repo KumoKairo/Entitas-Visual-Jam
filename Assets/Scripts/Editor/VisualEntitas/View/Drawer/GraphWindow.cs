@@ -4,7 +4,7 @@ using UnityEngine.Profiling;
 
 namespace Entitas.Visual.View.Drawer
 {
-    public class GraphWindow : IOnGuiView
+    public class GraphWindow
     {
         public void OnGUI(EditorWindow window)
         {

@@ -8,6 +8,9 @@ namespace Entitas.Visual.Model
 {
     public class GraphProxy : Proxy
     {
+        public const string NodeAdded = "GraphNodeAdded";
+        public const string NodeRemoved = "GraphNodeRemoved";
+
         public const string GraphPath = "/Graph.json";
 
         public const string Name = "GraphProxy";
@@ -34,19 +37,22 @@ namespace Entitas.Visual.Model
 
         public void AddNewNode(Vector2 mousePosition)
         {
-            GraphData.Nodes.Add(new Node
+            var newNode = new Node
             {
                 Position = new Rect(mousePosition, new Vector2(160f, 80f))
-            });
-
+            };
+            GraphData.Nodes.Add(newNode);
             SaveGraph(GraphData);
+
+            SendNotification(NodeAdded, newNode);
         }
 
         public void RemoveNode(Node node)
         {
-            GraphData.Nodes.Remove(node);
-
+            var removedNode = GraphData.Nodes.Remove(node);
             SaveGraph(GraphData);
+
+            SendNotification(NodeRemoved, removedNode);
         }
 
         public void UpdateNodePosition(Node node, Vector2 newPosition)

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Entitas.Visual.View.Drawer
 {
-    public class GraphWindowTopToolbar : IOnGuiView
+    public class GraphWindowTopToolbar
     {
         public void OnGUI(EditorWindow parentWindow)
         {
