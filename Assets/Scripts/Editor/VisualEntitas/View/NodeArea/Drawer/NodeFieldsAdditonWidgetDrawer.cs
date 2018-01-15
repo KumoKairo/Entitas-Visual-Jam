@@ -10,11 +10,10 @@ namespace Entitas.Visual.View.Drawer
 
         public void OnGUI(EditorWindow appView, Rect rect)
         {
-            _lastViewRect = rect;
 
             GUIHelper.DrawQuad(rect, StyleProxy.SemiTransparentBlackColor);
 
-            var fieldsTextSize = StyleProxy.NodeFieldNameStyle.CalcSize(new GUIContent("FIELDS"));
+            var fieldsTextSize = StyleProxy.NodeFieldNameStyleNormal.CalcSize(new GUIContent("FIELDS"));
             var plusIconSize = new Vector2(32f, 32f);
 
             var plusIconPosition = new Rect(
@@ -24,8 +23,10 @@ namespace Entitas.Visual.View.Drawer
                 plusIconSize.y
             );
 
+            _lastViewRect = plusIconPosition;
+
             var color = GUI.color;
-            GUI.color = StyleProxy.NodeFieldNameTextColor;
+            GUI.color = StyleProxy.NodeFieldNameTextColorNormal;
             GUI.DrawTexture(plusIconPosition, StyleProxy.PlusIconTexture);
             GUI.color = color;
 
@@ -36,7 +37,7 @@ namespace Entitas.Visual.View.Drawer
                 fieldsTextSize.y
             );
 
-            GUI.Box(fieldsTextPosition, "FIELDS", StyleProxy.NodeFieldNameStyle);
+            GUI.Box(fieldsTextPosition, "FIELDS", StyleProxy.NodeFieldNameStyleNormal);
         }
 
         public void HandleEvents(Event currentEvent, GenericMenu addFieldsGenericMenu)

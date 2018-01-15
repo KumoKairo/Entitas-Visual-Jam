@@ -1,6 +1,6 @@
-﻿using UnityEditor;
+﻿using Entitas.Visual.Utils;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace Entitas.Visual.View.Drawer
 {
@@ -14,35 +14,17 @@ namespace Entitas.Visual.View.Drawer
 
         private void DrawBackground(Rect position)
         {
-            GL.PushMatrix();
-            StyleProxy.EditorMaterial.SetPass(0);
-            GL.Begin(GL.QUADS);
-            GL.Color(StyleProxy.DarkBackgroundColor);
-
-            GL.Vertex3(0f, 0f, 0f);
-            GL.Vertex3(position.width, 0f, 0f);
-            GL.Vertex3(position.width, position.height, 0f);
-            GL.Vertex3(0f, position.height, 0f);
-
-            GL.End();
-            GL.PopMatrix();
+            GUIHelper.DrawQuad(new Rect(0f, 0f, position.width, position.height), StyleProxy.DarkBackgroundColor);
         }
 
         private void DrawGrid(Rect position)
         {
-            if (Event.current.type != EventType.Repaint)
-            {
-                return;
-            }
-
-            Profiler.BeginSample("Draw grid");
             GL.PushMatrix();
             GL.Begin(GL.LINES);
             this.DrawGridLines(16f, StyleProxy.DarkLineColorMinor, position);
             this.DrawGridLines(80f, StyleProxy.DarkLineColorMajor, position);
             GL.End();
             GL.PopMatrix();
-            Profiler.EndSample();
         }
 
         private void DrawGridLines(float gridSize, Color gridColor, Rect position)
@@ -63,7 +45,7 @@ namespace Entitas.Visual.View.Drawer
                 x += gridSize;
             }
 
-            float y = 16f;
+            float y = 32f;
             while (y < position.height)
             {
                 this.DrawLine(

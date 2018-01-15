@@ -1,5 +1,6 @@
 ﻿using Entitas.Visual.View.Drawer;
 using UnityEditor;
+using UnityEngine;
 
 namespace Entitas.Visual.View
 {
@@ -25,7 +26,9 @@ namespace Entitas.Visual.View
 
         protected override void OnGUI(EditorWindow appView)
         {
-            _toolbar.OnGUI(appView);
+            float toolbarHeight = 32f;
+            _toolbar.OnGUI(appView, toolbarHeight);
+            _toolbar.HandleEvents(Event.current);
         }
     }
 }

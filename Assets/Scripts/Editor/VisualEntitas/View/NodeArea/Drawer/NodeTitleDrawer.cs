@@ -7,39 +7,84 @@ namespace Entitas.Visual.View.Drawer
 {
     public class NodeTitleDrawer
     {
-        private GUIContent _nodeNameContent;
-        private GUIContent _nodeSubNameContent;
+        public bool IsRenaming { get; private set; }
+
+        private Node _lastLinkedNode;
+        private Rect _lastTitleRect;
+
+        private string _originalName;
 
         public void OnGUI(EditorWindow appView, Rect titleRect, Node node)
         {
-            if (_nodeNameContent == null)
-            {
-                _nodeNameContent = new GUIContent(node.Name);
-            }
-            if (_nodeSubNameContent == null)
-            {
-                _nodeSubNameContent = new GUIContent("COMPONENT");
-            }
+            _lastLinkedNode = node;
 
             GUIHelper.DrawQuad(titleRect, StyleProxy.NodeTitleBackdropColor);
 
-            var titleBlockSize = StyleProxy.NodeTitleTextStyle.CalcSize(_nodeNameContent);
-            var titlePosition = new Rect(
-                titleRect.x + titleRect.width * 0.5f - titleBlockSize.x * 0.5f,
-                titleRect.y + 6f,
-                titleBlockSize.x,
-                16f);
+            var titlePosition = new Rect(titleRect.position, new Vector2(titleRect.width, 16f));
+            titlePosition.y += 6f;
+            _lastTitleRect = titlePosition;
 
-            GUI.Box(titlePosition, node.Name, StyleProxy.NodeTitleTextStyle);
+            if (IsRenaming)
+            {
+                var color = GUI.color;
+                GUI.color = StyleProxy.BoldTransparentBlackColor;
+                node.Name = EditorGUI.TextField(titlePosition, node.Name, StyleProxy.NodeTitleTextStyle);
+                GUI.color = color;
+            }
+            else
+            {
+                GUI.Box(titlePosition, node.Name, StyleProxy.NodeTitleTextStyle);
+            }
 
-            var subtitleBlockSize = StyleProxy.NodeSubtitleTextStyle.CalcSize(_nodeSubNameContent);
-            var subtitlePosition = new Rect(
-                titleRect.x + titleRect.width * 0.5f - subtitleBlockSize.x * 0.5f,
-                titleRect.y + titleRect.height - subtitleBlockSize.y - 6f,
-                subtitleBlockSize.x,
-                16f);
+            var subtitlePosition = new Rect(titleRect.x, titleRect.y + titleRect.height - 20f, titleRect.width, 16f);
 
             GUI.Box(subtitlePosition, "COMPONENT", StyleProxy.NodeSubtitleTextStyle);
+        }
+
+        public bool HandleOnGUI(Event currentEvent)
+        {
+            if (IsRenaming)
+            {
+                bool shoudlUseEvent = false;
+                bool shouldReturnTrue = false;
+
+                switch (currentEvent.keyCode)
+                {
+                    case KeyCode.Escape:
+                        _lastLinkedNode.Name = _originalName;
+                        shoudlUseEvent = true;
+                        break;
+                    case KeyCode.Return:
+                        shoudlUseEvent = true;
+                        shouldReturnTrue = true;
+                        break;
+                }
+
+                if (!_lastTitleRect.Contains(currentEvent.mousePosition) && currentEvent.type == EventType.MouseDown)
+                {
+                    _lastLinkedNode.Name = _originalName;
+                    shoudlUseEvent = true;
+                }
+
+                if (shoudlUseEvent)
+                {
+                    IsRenaming = false;
+                    currentEvent.Use();
+                }
+
+                if (shouldReturnTrue)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void StartRenaming()
+        {
+            IsRenaming = true;
+            _originalName = _lastLinkedNode.Name;
         }
     }
 }

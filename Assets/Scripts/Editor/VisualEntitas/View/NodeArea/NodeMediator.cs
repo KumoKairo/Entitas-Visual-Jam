@@ -14,10 +14,11 @@ namespace Entitas.Visual.View
     {
         public const string Name = "NodeMediator";
 
+        public bool IsRenaming { get; private set; }
         public Node Node { get; private set; }
 
-        private NodeBackgroundDrawer _nodeBackgroundDrawer;
         private NodeTitleDrawer _nodeTitleDrawer;
+        private NodeBackgroundDrawer _nodeBackgroundDrawer;
         private NodeFieldsAdditonWidgetDrawer _nodeFieldsAdditonWidgetDrawer;
         private NodeCollapseChevronDrawer _nodeCollapseChevronDrawer;
         private NodeFieldsDrawer _nodeFieldsDrawer;
@@ -35,10 +36,14 @@ namespace Entitas.Visual.View
             _nodeFieldsDrawer = new NodeFieldsDrawer();
         }
 
-        public void OnGUI(EditorWindow appView)
+        public void OnGUI(EditorWindow appView, bool handleEvents)
         {
             PaintElements(appView);
-            HandleEvents(appView);
+
+            if (handleEvents)
+            {
+                HandleEvents(appView);
+            }
         }
 
         public override string[] ListNotificationInterests()
@@ -103,6 +108,8 @@ namespace Entitas.Visual.View
             }
 
             _nodeCollapseChevronDrawer.OnGUI(appView, chevronRect, isNodeCollapsed);
+
+            IsRenaming = _nodeTitleDrawer.IsRenaming || _nodeFieldsDrawer.IsRenaming;
         }
 
         private void HandleEvents(EditorWindow appView)
@@ -139,10 +146,17 @@ namespace Entitas.Visual.View
 
             _nodeBackgroundDrawer.HandleRightClick(currentEvent, _nodeContextGenericMenu);
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
+
             var removedField = _nodeFieldsDrawer.HandleFieldDeletionClick(currentEvent);
             if (removedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));
+            }
+
+            var titleChanged = _nodeTitleDrawer.HandleOnGUI(currentEvent);
+            if (titleChanged)
+            {
+                SendNotification(NodeAreaMediator.NodeRename, new Tuple<Node, string>(Node, Node.Name));
             }
             
             Vector2 dragNodePosition;
@@ -156,11 +170,6 @@ namespace Entitas.Visual.View
             {
                 SendNotification(NodeAreaMediator.NodePositionUpdate, new Tuple<Node, Vector2>(Node, dragNodePosition));
             }
-
-            if (chevronPressed || isNodeDraggedOrCompletedDragging.First || removedField != null)
-            {
-                appView.Repaint();
-            }
         }
 
         private void OnAddFieldToNode(Type fieldType)
@@ -171,12 +180,11 @@ namespace Entitas.Visual.View
         private void OnRemoveNode()
         {
             SendNotification(NodeAreaMediator.NodeRemove, Node);
-            ((EditorWindow) ViewComponent).Repaint();
         }
 
         private void OnRenameNode()
         {
-            Debug.LogWarning("Renaming is not supported yet");
+            _nodeTitleDrawer.StartRenaming();
         }
     }
 }

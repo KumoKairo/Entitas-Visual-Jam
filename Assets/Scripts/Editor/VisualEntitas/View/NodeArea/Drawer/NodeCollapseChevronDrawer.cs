@@ -12,7 +12,10 @@ namespace Entitas.Visual.View.Drawer
         {
             _lastDrawRect = rect;
 
-            GUIHelper.DrawQuad(rect, StyleProxy.ChevronUpBackdropColorNormal);
+            GUIHelper.DrawQuad(rect,
+                rect.Contains(Event.current.mousePosition)
+                    ? StyleProxy.ChevronUpBackdropColorHover
+                    : StyleProxy.ChevronUpBackdropColorNormal);
 
             var chevronIconSize = new Vector2(32f, 32f);
             var chevronPosition = new Vector2(

@@ -19,6 +19,7 @@ namespace Entitas.Visual.View
         public const string NodeRemove = "Node_Remove";
         public const string NodeCollapse = "Node_Collapse"; 
         public const string NodeFieldRemove = "Node_FieldRemove";
+        public const string NodeRename = "Node_Rename";
 
         private NodeAreaBackgroundDrawer _backgroundDrawer;
         private List<NodeMediator> _nodeMediators;
@@ -46,9 +47,25 @@ namespace Entitas.Visual.View
 
         protected override void OnGUI(EditorWindow appView)
         {
+            NodeMediator mediatorDuringRename = null;
+
             foreach (var nodeMediator in _nodeMediators)
             {
-                nodeMediator.OnGUI(appView);
+                if (nodeMediator.IsRenaming)
+                {
+                    mediatorDuringRename = nodeMediator;
+                }
+            }
+
+            foreach (var nodeMediator in _nodeMediators)
+            {
+                var shouldHandleEvents = true;
+                if (mediatorDuringRename != null)
+                {
+                    shouldHandleEvents = nodeMediator == mediatorDuringRename;
+                }
+
+                nodeMediator.OnGUI(appView, shouldHandleEvents);
             }
 
             var currentEvent = Event.current;
@@ -121,16 +138,12 @@ namespace Entitas.Visual.View
             switch (notification.Name)
             {
                 case GraphProxy.NodeAdded:
-                    Debug.Log("Added node");
                     payload = (Node) notification.Body;
                     RegisterNewMediatorFor(_nodeMediators.Count, payload);
-                    AppView.Repaint();
                     break;
                 case GraphProxy.NodeRemoved:
-                    Debug.Log("Removed node");
                     payload = (Node)notification.Body;
                     RemoveMediatorFor(payload);
-                    AppView.Repaint();
                     break;
             }
         }
@@ -138,7 +151,6 @@ namespace Entitas.Visual.View
         private void OnCreateComponentMenuSelected()
         {
             SendNotification(CreateNewComponent, _backgroundDrawer.LastClickPosition);
-            AppView.Repaint();
         }
 
         public static Vector2 SnapDragPositionToGrid(Vector2 position)

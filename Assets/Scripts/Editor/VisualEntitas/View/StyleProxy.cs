@@ -13,7 +13,7 @@ namespace Entitas.Visual.View
         public static Color OrangeDebugColor = new Color32(231, 76, 60, 100);
 
         public static Color NodeTitleBackdropColor = new Color32(91, 222, 147, 255);
-        public static Color NodeBackgroundColor = new Color32(38, 55, 72, 200);
+        public static Color NodeBackgroundColor = new Color32(38, 55, 72, 170);
 
         private static object _chevronUpTexture;
         public static Texture2D ChevronUpTexture
@@ -27,14 +27,16 @@ namespace Entitas.Visual.View
             get { return (Texture2D)(_chevronDownTexture = _chevronDownTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.chevron.down.png")); }
         }
 
+        public static Color BoldTransparentBlackColor = new Color32(0, 0, 0, 150);
         public static Color SemiTransparentBlackColor = new Color32(0, 0, 0, 55);
         public static Color TransparentBlackColor = new Color32(0, 0, 0, 35);
         public static Color ChevronUpBackdropColorNormal = new Color32(52, 73, 94, 200);
-        public static Color ChevronUpBackdropColorHover = new Color32(39, 174, 96, 255);
+        public static Color ChevronUpBackdropColorHover = new Color32(52, 73, 94, 150);
         public static Color ChevronUpColor = new Color32(22, 160, 133, 200);
         public static Color ChevronDownColor = new Color32(22, 160, 133, 200);
 
-        private static Color NodeTitleColor = new Color32(19, 40, 20, 255);
+        public static Color NodeTitleRenamingBackdropColor = new Color32(241, 196, 15, 155);
+        public static Color NodeTitleColor = new Color32(19, 40, 20, 255);
         private static object _nodeTitleTextStyle;
         public static GUIStyle NodeTitleTextStyle
         {
@@ -47,6 +49,11 @@ namespace Entitas.Visual.View
                         background = null,
                         textColor = NodeTitleColor
                     },
+                    focused =
+                    {
+                        background = null,
+                    },
+                    alignment = TextAnchor.MiddleCenter,
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Bold.ttf"),
                     fontSize = 16
                 };
@@ -67,6 +74,7 @@ namespace Entitas.Visual.View
                         background = null,
                         textColor = NodeTitleColor
                     },
+                    alignment = TextAnchor.MiddleCenter,
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Medium.ttf"),
                     fontSize = 10
                 };
@@ -75,45 +83,91 @@ namespace Entitas.Visual.View
             }
         }
 
-        public static Color NodeFieldNameTextColor = new Color32(163, 202, 229, 255);
-        private static object _nodeFieldNameStyle;
-        public static GUIStyle NodeFieldNameStyle
+        public static Color NodeFieldNameTextColorNormal = new Color32(163, 202, 229, 255);
+        private static object _nodeFieldNameStyleNormal;
+        public static GUIStyle NodeFieldNameStyleNormal
         {
             get
             {
-                _nodeFieldNameStyle = _nodeFieldNameStyle ?? new GUIStyle
+                _nodeFieldNameStyleNormal = _nodeFieldNameStyleNormal ?? new GUIStyle
                 {
                     normal =
                     {
                         background = null,
-                        textColor = NodeFieldNameTextColor
+                        textColor = NodeFieldNameTextColorNormal
                     },
+                    alignment = TextAnchor.MiddleLeft,
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-SemiBold.ttf"),
                     fontSize = 14
                 };
 
-                return (GUIStyle)_nodeFieldNameStyle;
+                return (GUIStyle)_nodeFieldNameStyleNormal;
             }
         }
 
-        public static Color NodeFieldTypeNameColor = new Color32(190, 133, 213, 255);
-        private static object _nodeFieldTypeStyle;
-        public static GUIStyle NodeFieldTypeStyle
+        public static Color NodeFieldNameTextColorHover = new Color32(163, 202, 229, 180);
+        private static object _nodeFieldNameStyleHover;
+        public static GUIStyle NodeFieldNameStyleHover
         {
             get
             {
-                _nodeFieldTypeStyle = _nodeFieldTypeStyle ?? new GUIStyle
+                _nodeFieldNameStyleHover = _nodeFieldNameStyleHover ?? new GUIStyle
                 {
                     normal =
                     {
                         background = null,
-                        textColor = NodeFieldTypeNameColor
+                        textColor = NodeFieldNameTextColorHover
                     },
+                    alignment = TextAnchor.MiddleLeft,
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-SemiBold.ttf"),
+                    fontSize = 14
+                };
+
+                return (GUIStyle)_nodeFieldNameStyleHover;
+            }
+        }
+
+        public static Color NodeFieldTypeNameColorNormal = new Color32(190, 133, 213, 255);
+        private static object _nodeFieldTypeStyleNormal;
+        public static GUIStyle NodeFieldTypeStyleNormal
+        {
+            get
+            {
+                _nodeFieldTypeStyleNormal = _nodeFieldTypeStyleNormal ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeFieldTypeNameColorNormal
+                    },
+                    alignment = TextAnchor.MiddleRight,
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Medium.ttf"),
                     fontSize = 14
                 };
 
-                return (GUIStyle)_nodeFieldTypeStyle;
+                return (GUIStyle)_nodeFieldTypeStyleNormal;
+            }
+        }
+
+        public static Color NodeFieldTypeNameColorHover = new Color32(190, 133, 213, 180);
+        private static object _nodeFieldTypeStyleHover;
+        public static GUIStyle NodeFieldTypeStyleHover
+        {
+            get
+            {
+                _nodeFieldTypeStyleHover = _nodeFieldTypeStyleHover ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeFieldTypeNameColorHover
+                    },
+                    alignment = TextAnchor.MiddleRight,
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Medium.ttf"),
+                    fontSize = 14
+                };
+
+                return (GUIStyle)_nodeFieldTypeStyleHover;
             }
         }
 
@@ -131,6 +185,28 @@ namespace Entitas.Visual.View
             get { return (Texture2D)(_plusIconTexture = _plusIconTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.add.png")); }
         }
 
+        public static Color CompileButtonColorNormal = new Color32(233, 148, 72, 255);
+        public static Color CompileButtonColorHover = new Color32(233, 148, 72, 155);
+        public static Color CompileButtonColorPressed = new Color32(211, 84, 0, 15);
+        public static object _compileButtonTexture;
+        public static Texture2D CompileButtonTexture
+        {
+            get { return (Texture2D)(_compileButtonTexture = _compileButtonTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.save.png")); }
+        }
+
+        public static object _componentIconTexture;
+        public static Texture2D ComponentIconTexture
+        {
+            get { return (Texture2D)(_componentIconTexture = _componentIconTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.resource.png")); }
+        }
+
+        public static object _refreshIconTexture;
+        public static Texture2D RefreshIconTexture
+        {
+            get { return (Texture2D)(_refreshIconTexture = _refreshIconTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.refresh.png")); }
+        }
+
+        
         public static int EditorMaterialTextureParameterName = Shader.PropertyToID("_MainTex");
         private static object _editorMaterial;
         public static Material EditorMaterial

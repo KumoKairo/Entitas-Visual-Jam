@@ -16,6 +16,7 @@ namespace Entitas.Visual.Model
         public const string NodeCollapsed = "GraphNodeCollapsed";
         public const string NodeFieldAdded = "GraphNodeFieldAdded";
         public const string NodeFieldRemoved = "GraphNodeFieldRemoved";
+        public const string NodeRenamed = "GraphNodeRenamed";
 
         public const string GraphPath = "/Graph.json";
 
@@ -94,6 +95,13 @@ namespace Entitas.Visual.Model
             node.Fields.Add(new Field(Haikunator.Random(), type.FullName));
             SaveGraph(GraphData);
             SendNotification(NodeFieldAdded, new Tuple<Node, Type>(node, type));
+        }
+
+        public void RenameNode(Node node, string name)
+        {
+            node.Name = name;
+            SaveGraph(GraphData);
+            SendNotification(NodeRenamed, node);
         }
 
         public Graph GraphData

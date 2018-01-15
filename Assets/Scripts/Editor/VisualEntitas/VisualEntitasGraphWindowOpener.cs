@@ -15,6 +15,7 @@ namespace Entitas.Visual
 
         public void Update()
         {
+            Repaint();
         }
 
         public void OnGUI()
