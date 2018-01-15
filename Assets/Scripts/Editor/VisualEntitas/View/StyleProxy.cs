@@ -30,24 +30,26 @@ namespace Entitas.Visual.View
         public static Color BoldTransparentBlackColor = new Color32(0, 0, 0, 150);
         public static Color SemiTransparentBlackColor = new Color32(0, 0, 0, 55);
         public static Color TransparentBlackColor = new Color32(0, 0, 0, 35);
+
         public static Color ChevronUpBackdropColorNormal = new Color32(52, 73, 94, 200);
         public static Color ChevronUpBackdropColorHover = new Color32(52, 73, 94, 150);
         public static Color ChevronUpColor = new Color32(22, 160, 133, 200);
         public static Color ChevronDownColor = new Color32(22, 160, 133, 200);
 
-        public static Color NodeTitleRenamingBackdropColor = new Color32(241, 196, 15, 155);
-        public static Color NodeTitleColor = new Color32(19, 40, 20, 255);
-        private static object _nodeTitleTextStyle;
-        public static GUIStyle NodeTitleTextStyle
+        public static Color NodeTitleRenamingBackdropColor = new Color32(93, 189, 134, 255);
+
+        public static Color NodeTitleColorNormal = new Color32(19, 40, 20, 255);
+        private static object _nodeTitleTextStyleNormal;
+        public static GUIStyle NodeTitleTextStyleNormal
         {
             get
             {
-                _nodeTitleTextStyle = _nodeTitleTextStyle ?? new GUIStyle
+                _nodeTitleTextStyleNormal = _nodeTitleTextStyleNormal ?? new GUIStyle
                 {
                     normal =
                     {
                         background = null,
-                        textColor = NodeTitleColor
+                        textColor = NodeTitleColorNormal
                     },
                     focused =
                     {
@@ -58,7 +60,34 @@ namespace Entitas.Visual.View
                     fontSize = 16
                 };
 
-                return (GUIStyle)_nodeTitleTextStyle;
+                return (GUIStyle)_nodeTitleTextStyleNormal;
+            }
+        }
+
+        public static Color NodeTitleColorHover = new Color32(19, 40, 20, 200);
+        public static Color NodeTitleColorHoverRename = new Color32(19, 40, 20, 200);
+        private static object _nodeTitleTextStyleHover;
+        public static GUIStyle NodeTitleTextStyleHover
+        {
+            get
+            {
+                _nodeTitleTextStyleHover = _nodeTitleTextStyleHover ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeTitleColorHover
+                    },
+                    focused =
+                    {
+                        background = null,
+                    },
+                    alignment = TextAnchor.MiddleCenter,
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Bold.ttf"),
+                    fontSize = 16
+                };
+
+                return (GUIStyle)_nodeTitleTextStyleHover;
             }
         }
 
@@ -72,7 +101,7 @@ namespace Entitas.Visual.View
                     normal =
                     {
                         background = null,
-                        textColor = NodeTitleColor
+                        textColor = NodeTitleColorNormal
                     },
                     alignment = TextAnchor.MiddleCenter,
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-Medium.ttf"),
@@ -118,12 +147,39 @@ namespace Entitas.Visual.View
                         background = null,
                         textColor = NodeFieldNameTextColorHover
                     },
+                    focused =
+                    {
+                        background = null,
+                    },
                     alignment = TextAnchor.MiddleLeft,
                     font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-SemiBold.ttf"),
                     fontSize = 14
                 };
 
                 return (GUIStyle)_nodeFieldNameStyleHover;
+            }
+        }
+
+        public static Color NodeFieldNameTextColorRenaming = new Color32(130, 192, 234, 150);
+        public static Color NodeFieldNameTextRenamingBackgroundColor = new Color32(47, 73, 91, 200);
+        private static object _nodeFieldNameStyleRenaming;
+        public static GUIStyle NodeFieldNameStyleRenaming
+        {
+            get
+            {
+                _nodeFieldNameStyleRenaming = _nodeFieldNameStyleRenaming ?? new GUIStyle
+                {
+                    normal =
+                    {
+                        background = null,
+                        textColor = NodeFieldNameTextColorRenaming
+                    },
+                    alignment = TextAnchor.MiddleLeft,
+                    font = (Font)EditorGUIUtility.Load("Fonts/Montserrat-SemiBold.ttf"),
+                    fontSize = 14
+                };
+
+                return (GUIStyle)_nodeFieldNameStyleRenaming;
             }
         }
 

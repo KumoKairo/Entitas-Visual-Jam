@@ -20,6 +20,8 @@ namespace Entitas.Visual.View
         public const string NodeCollapse = "Node_Collapse"; 
         public const string NodeFieldRemove = "Node_FieldRemove";
         public const string NodeRename = "Node_Rename";
+        public const string NodeFieldRename = "Node_FieldRename";
+        public const string NodeFieldChangeType = "Node_FieldChangeType";
 
         private NodeAreaBackgroundDrawer _backgroundDrawer;
         private List<NodeMediator> _nodeMediators;

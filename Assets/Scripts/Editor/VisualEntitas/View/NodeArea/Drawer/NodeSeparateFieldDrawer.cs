@@ -1,5 +1,8 @@
-﻿using Entitas.Visual.Model.VO;
+﻿using System;
+using Entitas.Visual.Model;
+using Entitas.Visual.Model.VO;
 using Entitas.Visual.Utils;
+using UnityEditor;
 using UnityEngine;
 
 namespace Entitas.Visual.View.Drawer
@@ -21,6 +24,9 @@ namespace Entitas.Visual.View.Drawer
 
         private HoverType? _lastHoveredOver;
         private Rect _minusIconHotRect;
+        private string _initialFieldName;
+
+        private GenericMenu _changeFieldTypeGenericMenu;
 
         public NodeSeparateFieldDrawer(Field field)
         {
@@ -41,8 +47,8 @@ namespace Entitas.Visual.View.Drawer
             var splitType = _field.Type.Split('.');
             var displayFieldType = splitType[splitType.Length - 1];
 
-            var fieldNameContent = GetOrCreateGuiContent(ref _fiendTypeContent, _field.Name);
-            var fieldTypeContent = GetOrCreateGuiContent(ref _fiendNameContent, displayFieldType);
+            var fieldNameContent = GUIHelper.GetOrCreateOrUpdateGUIContentFor(_field.Name, ref _fiendTypeContent);
+            var fieldTypeContent = GUIHelper.GetOrCreateOrUpdateGUIContentFor(displayFieldType, ref _fiendNameContent);
 
             var fieldNameRect = new Rect(contentRect);
             fieldNameRect.x += 8f;
@@ -68,45 +74,107 @@ namespace Entitas.Visual.View.Drawer
             var fieldTypeRect = new Rect(contentRect);
             fieldTypeRect.x -= minusIconRect.width;
 
-            _lastHoveredOver = DrawHotText(fieldNameContent, fieldNameRect,
-                StyleProxy.NodeFieldNameStyleNormal,
-                StyleProxy.NodeFieldNameStyleHover) ? HoverType.Name : _lastHoveredOver;
+            if (IsRenaming)
+            {
+                var controlRectName = contentRect.ToString();
+                GUI.SetNextControlName(controlRectName);
+
+                color = GUI.skin.settings.selectionColor;
+                GUI.skin.settings.selectionColor = StyleProxy.NodeFieldNameTextRenamingBackgroundColor;
+                _field.Name = EditorGUI.TextField(fieldNameRect, _field.Name, StyleProxy.NodeFieldNameStyleHover);
+                GUI.skin.settings.selectionColor = color;
+
+                if (GUI.GetNameOfFocusedControl() != controlRectName)
+                {
+                    EditorGUI.FocusTextInControl(controlRectName);
+                }
+            }
+            else
+            {
+                _lastHoveredOver = DrawHotText(fieldNameContent, fieldNameRect,
+                    StyleProxy.NodeFieldNameStyleNormal,
+                    StyleProxy.NodeFieldNameStyleHover) ? HoverType.Name : _lastHoveredOver;
+            }
 
             _lastHoveredOver = DrawHotText(fieldTypeContent, fieldTypeRect,
                 StyleProxy.NodeFieldTypeStyleNormal,
                 StyleProxy.NodeFieldTypeStyleHover, true) ? HoverType.Type : _lastHoveredOver;
         }
 
-        /// Returns whether we have clicked on a minus (delete) sign
-        public bool HandleEvent(Event current)
+        internal void OnRegister(FieldTypeProviderProxy typeProviderProxy, Action<Field, Type> onFieldTypeChanged)
         {
-            if (_lastHoveredOver != null && current.type == EventType.MouseDown)
+            _changeFieldTypeGenericMenu = new GenericMenu();
+            foreach (var type in typeProviderProxy.FieldTypeProviderData.Types)
             {
-                Debug.Log("Renaming " + _lastHoveredOver + " " + _field.Name);
-                //IsRenaming = true;
+                var localType = type;
+                _changeFieldTypeGenericMenu.AddItem(new GUIContent(type.Name), false, () => onFieldTypeChanged(_field, localType));
+            }
+        }
+
+        /// Returns whether we have clicked on a minus (delete) sign (FIRST)
+        public bool HandleEvent(Event current, out bool hasSuccessfullyRenamedField)
+        {
+            hasSuccessfullyRenamedField = false;
+
+            if (_lastHoveredOver != null 
+                && _lastHoveredOver.Value == HoverType.Name
+                && current.type == EventType.MouseDown 
+                && current.clickCount == 2
+                && current.button == 0)
+            {
+                IsRenaming = true;
+                _initialFieldName = _field.Name;
                 current.Use();
             }
 
-            if (current.type == EventType.MouseDown && current.button == 0)
+            if (_lastHoveredOver != null
+                && _lastHoveredOver.Value == HoverType.Type
+                && current.type == EventType.MouseDown
+                && current.button == 0)
             {
-                if (_minusIconHotRect.Contains(current.mousePosition))
+                current.Use();
+                _changeFieldTypeGenericMenu.ShowAsContext();
+            }
+
+            if (IsRenaming)
+            {
+                bool shouldUseEvent = false;
+                bool shouldContinueRenaming = true;
+
+                if (_lastHoveredOver == null && current.type == EventType.MouseDown || current.keyCode == KeyCode.Escape)
+                {
+                    shouldContinueRenaming = false;
+                    shouldUseEvent = true;
+                    _field.Name = _initialFieldName;
+                }
+                else if (current.keyCode == KeyCode.Return)
+                {
+                    hasSuccessfullyRenamedField = true;
+                    shouldContinueRenaming = false;
+                    shouldUseEvent = true;
+                }
+
+                IsRenaming = shouldContinueRenaming;
+                if (!IsRenaming)
+                {
+                    GUI.FocusControl("");
+                }
+
+                if (shouldUseEvent)
                 {
                     current.Use();
-                    return true;
                 }
             }
 
-            return false;
-        }
-
-        private GUIContent GetOrCreateGuiContent(ref GUIContent content, string name)
-        {
-            if (content == null)
+            if (_minusIconHotRect.Contains(current.mousePosition)
+                && current.type == EventType.MouseDown
+                && current.button == 0)
             {
-                content = new GUIContent(name);
+                current.Use();
+                return true;
             }
 
-            return content;
+            return false;
         }
 
         private bool DrawHotText(
@@ -152,6 +220,15 @@ namespace Entitas.Visual.View.Drawer
             }
 
             GUI.Box(fieldTypeRect, fieldTypeContent, fieldTypeStyle);
+        }
+
+        public void OnRegister(FieldTypeProviderProxy typeProviderProxy)
+        {
+            _changeFieldTypeGenericMenu = new GenericMenu();
+            foreach (var type in typeProviderProxy.FieldTypeProviderData.Types)
+            {
+                
+            }
         }
     }
 }

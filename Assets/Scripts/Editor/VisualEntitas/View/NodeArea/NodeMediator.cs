@@ -26,6 +26,10 @@ namespace Entitas.Visual.View
         private GenericMenu _addFieldsGenericMenu;
         private GenericMenu _nodeContextGenericMenu;
 
+        private Action<Field, Type> _onFieldTypeChanged;
+
+        private FieldTypeProviderProxy _fieldTypeProviderProxy;
+
         public NodeMediator(string name, Node node, EditorWindow viewComponent) : base(name, viewComponent)
         {
             Node = node;
@@ -34,6 +38,15 @@ namespace Entitas.Visual.View
             _nodeFieldsAdditonWidgetDrawer = new NodeFieldsAdditonWidgetDrawer();
             _nodeCollapseChevronDrawer = new NodeCollapseChevronDrawer();
             _nodeFieldsDrawer = new NodeFieldsDrawer(node);
+
+            _onFieldTypeChanged = OnChangeFieldType;
+        }
+
+        public override void OnRegister()
+        {
+            base.OnRegister();
+            _fieldTypeProviderProxy = (FieldTypeProviderProxy)Facade.RetrieveProxy(FieldTypeProviderProxy.Name);
+            _nodeFieldsDrawer.OnRegister(_fieldTypeProviderProxy, _onFieldTypeChanged);
         }
 
         public void OnGUI(EditorWindow appView, bool handleEvents)
@@ -137,28 +150,36 @@ namespace Entitas.Visual.View
             if (_addFieldsGenericMenu == null)
             {
                 _addFieldsGenericMenu = new GenericMenu();
-                _addFieldsGenericMenu.AddItem(new GUIContent("float"), false, () => { OnAddFieldToNode(typeof(float)); });
-                _addFieldsGenericMenu.AddItem(new GUIContent("int"), false, () => { OnAddFieldToNode(typeof(int)); });
-                _addFieldsGenericMenu.AddItem(new GUIContent("string"), false, () => { OnAddFieldToNode(typeof(string)); });
-                _addFieldsGenericMenu.AddItem(new GUIContent("Vector3"), false, () => { OnAddFieldToNode(typeof(Vector3)); });
-                _addFieldsGenericMenu.AddItem(new GUIContent("Vector2"), false, () => { OnAddFieldToNode(typeof(Vector2)); });
+                foreach (var fieldType in _fieldTypeProviderProxy.FieldTypeProviderData.Types)
+                {
+                    var localField = fieldType;
+                    _addFieldsGenericMenu.AddItem(new GUIContent(localField.Name), false, () => { OnAddFieldToNode(localField); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent(localField.Name), false, () => { OnAddFieldToNode(localField); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent(localField.Name), false, () => { OnAddFieldToNode(localField); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent(localField.Name), false, () => { OnAddFieldToNode(localField); });
+                    _addFieldsGenericMenu.AddItem(new GUIContent(localField.Name), false, () => { OnAddFieldToNode(localField); });
+                }
             }
 
             if (_nodeContextGenericMenu == null)
             {
                 _nodeContextGenericMenu = new GenericMenu();
-                _nodeContextGenericMenu.AddItem(new GUIContent("Rename"), false, OnRenameNode);
-                _nodeContextGenericMenu.AddSeparator("");
                 _nodeContextGenericMenu.AddItem(new GUIContent("Remove"), false, OnRemoveNode);
             }
 
             _nodeBackgroundDrawer.HandleRightClick(currentEvent, _nodeContextGenericMenu);
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
 
-            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node);
+            Field renamedField;
+            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node, out renamedField);
             if (removedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));
+            }
+
+            if (renamedField != null)
+            {
+                SendNotification(NodeAreaMediator.NodeFieldRename, new Tuple<Node, Field>(Node, renamedField));
             }
 
             var titleChanged = _nodeTitleDrawer.HandleOnGUI(currentEvent);
@@ -181,19 +202,19 @@ namespace Entitas.Visual.View
             }
         }
 
-        private void OnAddFieldToNode(Type fieldType)
+        private void OnAddFieldToNode(Type newType)
         {
-            SendNotification(NodeAreaMediator.NodeFieldAdd, new Tuple<Node, Type>(Node, fieldType));
+            SendNotification(NodeAreaMediator.NodeFieldAdd, new Tuple<Node, Type>(Node, newType));
+        }
+
+        private void OnChangeFieldType(Field field, Type newType)
+        {
+            SendNotification(NodeAreaMediator.NodeFieldChangeType, new Tuple<Node, Field, Type>(Node, field, newType));
         }
 
         private void OnRemoveNode()
         {
             SendNotification(NodeAreaMediator.NodeRemove, Node);
-        }
-
-        private void OnRenameNode()
-        {
-            _nodeTitleDrawer.StartRenaming();
         }
     }
 }

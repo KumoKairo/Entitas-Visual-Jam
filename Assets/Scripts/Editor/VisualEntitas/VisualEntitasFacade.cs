@@ -26,6 +26,8 @@ namespace Entitas.Visual
 
             RegisterCommand(NodeAreaMediator.NodeFieldAdd, () => new NodeFieldAddCommand());
             RegisterCommand(NodeAreaMediator.NodeFieldRemove, () => new NodeFieldRemoveCommand());
+            RegisterCommand(NodeAreaMediator.NodeFieldRename, () => new NodeFieldRenameCommand());
+            RegisterCommand(NodeAreaMediator.NodeFieldChangeType, () => new NodeChangeFieldTypeCommand());
             RegisterCommand(NodeAreaMediator.NodeRename, () => new NodeRenameCommand());
 
             RegisterCommand(NodeAreaMediator.NodePositionUpdate, () => new NodeUpdatePositionCommand());
@@ -37,6 +39,8 @@ namespace Entitas.Visual
         {
             Stop();
             SendNotification(Startup, mainWindow);
+
+            GUI.FocusControl("");
         }
 
         public void Stop()

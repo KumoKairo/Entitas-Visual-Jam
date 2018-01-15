@@ -19,5 +19,15 @@ namespace Entitas.Visual.Utils
             GL.End();
             GL.PopMatrix();
         }
+
+        public static GUIContent GetOrCreateOrUpdateGUIContentFor(string text, ref GUIContent content)
+        {
+            if (content == null || content.text != text)
+            {
+                content = new GUIContent(text);
+            }
+
+            return content;
+        }
     }
 }

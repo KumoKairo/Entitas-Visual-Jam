@@ -16,6 +16,8 @@ namespace Entitas.Visual.Model
         public const string NodeCollapsed = "GraphNodeCollapsed";
         public const string NodeFieldAdded = "GraphNodeFieldAdded";
         public const string NodeFieldRemoved = "GraphNodeFieldRemoved";
+        public const string NodeFieldRenamed = "GraphNodeFieldRenamed";
+        public const string NodeFieldTypeChanged = "GraphNodeFieldTypeChanged";
         public const string NodeRenamed = "GraphNodeRenamed";
 
         public const string GraphPath = "/Graph.json";
@@ -105,6 +107,12 @@ namespace Entitas.Visual.Model
             SendNotification(NodeRenamed, node);
         }
 
+        public void RenameNodeField(Node node, Field field)
+        {
+            SaveGraph(GraphData);
+            SendNotification(NodeFieldRenamed, new Tuple<Node, Field>(node, field));
+        }
+
         public Graph GraphData
         {
             get { return (Graph) Data; }
@@ -114,6 +122,16 @@ namespace Entitas.Visual.Model
         {
             var serializedString = JsonUtility.ToJson(graph);
             File.WriteAllText(_totalGraphPath, serializedString);
+        }
+
+        public void ChangeFieldType(Tuple<Node, Field, Type> payload)
+        {
+            var field = payload.Second;
+            var type = payload.Third;
+
+            field.Type = type.FullName;
+            SaveGraph(GraphData);
+            SendNotification(NodeFieldTypeChanged);
         }
     }
 }
