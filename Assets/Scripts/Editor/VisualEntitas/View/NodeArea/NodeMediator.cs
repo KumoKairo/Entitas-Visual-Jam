@@ -52,6 +52,11 @@ namespace Entitas.Visual.View
 
         public void OnGUI(EditorWindow appView, bool handleEvents)
         {
+            if (_fieldTypeProviderProxy == null)
+            {
+                return;
+            }
+
             PaintElements(appView);
 
             if (handleEvents)
