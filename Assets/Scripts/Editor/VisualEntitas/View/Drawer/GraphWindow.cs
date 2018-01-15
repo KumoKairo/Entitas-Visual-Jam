@@ -21,8 +21,8 @@ namespace Entitas.Visual.View.Drawer
         {
             GL.PushMatrix();
             GL.Begin(GL.LINES);
-            this.DrawGridLines(16f, StyleProxy.DarkLineColorMinor, position);
-            this.DrawGridLines(80f, StyleProxy.DarkLineColorMajor, position);
+            DrawGridLines(16f, StyleProxy.DarkLineColorMinor, position);
+            DrawGridLines(80f, StyleProxy.DarkLineColorMajor, position);
             GL.End();
             GL.PopMatrix();
         }

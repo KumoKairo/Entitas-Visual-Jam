@@ -263,6 +263,12 @@ namespace Entitas.Visual.View
             get { return (Texture2D)(_refreshIconTexture = _refreshIconTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.refresh.png")); }
         }
 
+        public static object _centerlineTexture;
+        public static Texture2D CenterlineTexture
+        {
+            get { return (Texture2D)(_centerlineTexture = _centerlineTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.centerline.png")); }
+        }
+
         
         public static int EditorMaterialTextureParameterName = Shader.PropertyToID("_MainTex");
         private static object _editorMaterial;
