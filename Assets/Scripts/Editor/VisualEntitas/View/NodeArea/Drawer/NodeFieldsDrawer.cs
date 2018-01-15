@@ -35,7 +35,22 @@ namespace Entitas.Visual.View.Drawer
             }
         }
 
-        public Field HandleEvents(Event currentEvent, Node node, out Field renamedField, out float fieldsDesiredWidth)
+        public float GetDesiredWidth()
+        {
+            float currentFieldDesiredWidth = 0f;
+            foreach (var drawer in _fieldToDrawer)
+            {
+                var width = drawer.Value.GetCurrentDesiredWidth();
+                if (width > currentFieldDesiredWidth)
+                {
+                    currentFieldDesiredWidth = width;
+                }
+            }
+
+            return currentFieldDesiredWidth;
+        }
+
+        public Field HandleEvents(Event currentEvent, Node node, out Field renamedField)
         {
             Field deletedField = null;
             renamedField = null;
@@ -51,8 +66,6 @@ namespace Entitas.Visual.View.Drawer
                 }
             }
 
-            fieldsDesiredWidth = 0f;
-
             for (int i = 0; i < node.Fields.Count; i++)
             {
                 var field = node.Fields[i];
@@ -61,15 +74,8 @@ namespace Entitas.Visual.View.Drawer
                 if (renamingDrawer == null || renamingDrawer == fieldDrawer)
                 {
                     bool hasSuccessfullyRenamedField;
-
-                    float currentFieldDesiredWidth;
-                    var isDeleted = _fieldToDrawer[field].HandleEvent(currentEvent, out hasSuccessfullyRenamedField,
-                        out currentFieldDesiredWidth);
-
-                    if (currentFieldDesiredWidth > fieldsDesiredWidth)
-                    {
-                        fieldsDesiredWidth = currentFieldDesiredWidth;
-                    }
+                    
+                    var isDeleted = _fieldToDrawer[field].HandleEvent(currentEvent, out hasSuccessfullyRenamedField);
 
                     deletedField = isDeleted ? field : deletedField;
                     renamedField = hasSuccessfullyRenamedField ? field : renamedField;

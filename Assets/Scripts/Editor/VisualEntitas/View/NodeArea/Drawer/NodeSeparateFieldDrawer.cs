@@ -118,12 +118,15 @@ namespace Entitas.Visual.View.Drawer
             }
         }
 
+        public float GetCurrentDesiredWidth()
+        {
+            return CalculateCurrentDesiredWidth();
+        }
+
         /// Returns whether we have clicked on a minus (delete) sign (FIRST)
-        public bool HandleEvent(Event current, out bool hasSuccessfullyRenamedField, out float currentFieldDesiredWidth)
+        public bool HandleEvent(Event current, out bool hasSuccessfullyRenamedField)
         {
             hasSuccessfullyRenamedField = false;
-
-            currentFieldDesiredWidth = CalculateCurrentDesiredWidth();
 
             if (_lastHoveredOver != null 
                 && _lastHoveredOver.Value == HoverType.Name

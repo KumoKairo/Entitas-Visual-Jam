@@ -70,12 +70,18 @@ namespace Entitas.Visual.View.Drawer
             return hotRect;
         }
 
-        public bool HandleOnGUI(Event currentEvent, out float desiredWidth)
+        public float GetDesiredWidth()
         {
             var hotTitleRect = GetHotRect(_lastTitleRect,
                 GUIHelper.GetOrCreateOrUpdateGUIContentFor(_node.Name, ref _titleContent));
 
-            desiredWidth = hotTitleRect.width + NodeMediator.TitleMargins * 2f;
+            return hotTitleRect.width + NodeMediator.TitleMargins * 2f;
+        }
+
+        public bool HandleOnGUI(Event currentEvent)
+        {
+            var hotTitleRect = GetHotRect(_lastTitleRect,
+                GUIHelper.GetOrCreateOrUpdateGUIContentFor(_node.Name, ref _titleContent));
 
             if (IsRenaming)
             {

@@ -100,7 +100,7 @@ namespace Entitas.Visual.View
             float titleHeight = 48f;
             float fieldsAdditionLineHeight = 32f;
 
-            float fieldLineHeight = 16f;
+            float fieldLineHeight = 20f;
             float chevronBackdropHeight = 16f;
 
             var isNodeCollapsed = Node.IsCollapsed;
@@ -137,6 +137,27 @@ namespace Entitas.Visual.View
             _nodeCollapseChevronDrawer.OnGUI(appView, chevronRect, isNodeCollapsed);
 
             IsRenaming = _nodeTitleDrawer.IsRenaming;
+
+            float fieldsDesiredWidth = _nodeFieldsDrawer.GetDesiredWidth();
+            float titleDesiredWidth = _nodeTitleDrawer.GetDesiredWidth();
+
+            var desiredWidth = Mathf.Max(titleDesiredWidth, fieldsDesiredWidth);
+            var newPositionRect = new Rect(Node.Position);
+            newPositionRect.width = desiredWidth;
+
+            if (newPositionRect.width < Node.DefaultWidth)
+            {
+                newPositionRect.width = Node.DefaultWidth;
+            }
+
+            int snapSteps = Mathf.CeilToInt(newPositionRect.width / GraphWindowMediator.CellWidth);
+            newPositionRect.width = GraphWindowMediator.CellWidth * snapSteps;
+
+            if (!Mathf.Approximately(newPositionRect.width, Node.Position.width))
+            {
+                Node.Position = newPositionRect;
+                SendNotification(NodeAreaMediator.NodeResize, new Tuple<Node, Rect>(Node, newPositionRect));
+            }
         }
 
         private void HandleEvents(EditorWindow appView)
@@ -177,8 +198,7 @@ namespace Entitas.Visual.View
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
 
             Field renamedField;
-            float fieldsDesiredWidth;
-            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node, out renamedField, out fieldsDesiredWidth);
+            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node, out renamedField);
             if (removedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));
@@ -188,8 +208,7 @@ namespace Entitas.Visual.View
                 SendNotification(NodeAreaMediator.NodeFieldRename, new Tuple<Node, Field>(Node, renamedField));
             }
 
-            float titleDesiredWidth;
-            var titleChanged = _nodeTitleDrawer.HandleOnGUI(currentEvent, out titleDesiredWidth);
+            var titleChanged = _nodeTitleDrawer.HandleOnGUI(currentEvent);
             if (titleChanged)
             {
                 SendNotification(NodeAreaMediator.NodeRename, new Tuple<Node, string>(Node, Node.Name));
@@ -206,24 +225,6 @@ namespace Entitas.Visual.View
             if (isNodeDraggedOrCompletedDragging.Second)
             {
                 SendNotification(NodeAreaMediator.NodePositionUpdate, new Tuple<Node, Vector2>(Node, dragNodePosition));
-            }
-
-            var desiredWidth = Mathf.Max(titleDesiredWidth, fieldsDesiredWidth);
-            var newPositionRect = new Rect(Node.Position);
-            newPositionRect.width = desiredWidth;
-
-            if (newPositionRect.width < Node.DefaultWidth)
-            {
-                newPositionRect.width = Node.DefaultWidth;
-            }
-
-            int snapSteps = Mathf.CeilToInt(newPositionRect.width / GraphWindowMediator.CellWidth);
-            newPositionRect.width = GraphWindowMediator.CellWidth * snapSteps;
-
-            if (!Mathf.Approximately(newPositionRect.width, Node.Position.width))
-            {
-                Node.Position = newPositionRect;
-                SendNotification(NodeAreaMediator.NodeResize, new Tuple<Node, Rect>(Node, newPositionRect));
             }
         }
 
