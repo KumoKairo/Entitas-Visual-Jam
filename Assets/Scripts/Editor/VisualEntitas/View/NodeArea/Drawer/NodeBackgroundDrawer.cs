@@ -9,6 +9,7 @@ namespace Entitas.Visual.View.Drawer
         private Rect _lastDrawRect;
 
         private Vector2 _initialDragPosition;
+        private Vector2 _initialDragOffset;
         private Vector2 _draggingOffset;
         private bool _isDragging;
 
@@ -35,11 +36,11 @@ namespace Entitas.Visual.View.Drawer
         }
 
         /// <returns>Tuple - first parameter is whether we have dragged this "frame". 
-        /// Second parameter is whether we have completed dragging</returns>
+        /// Second parameter is whether we have completed dragging and should update position</returns>
         public Tuple<bool, bool> HandleDrag(Event currentEvent, out Vector2 newDragPosition)
         {
             var returnValue = new Tuple<bool, bool>(false, false);
-            newDragPosition = NodeAreaMediator.SnapDragPositionToGrid(_initialDragPosition + _draggingOffset);
+            newDragPosition = GraphWindowMediator.SnapDragPositionToGrid(_initialDragPosition + _draggingOffset + _initialDragOffset);
 
             var currentMousePosition = currentEvent.mousePosition;
             if (_lastDrawRect.Contains(currentMousePosition) 
@@ -47,7 +48,8 @@ namespace Entitas.Visual.View.Drawer
                 && currentEvent.button == 0)
             {
                 _initialDragPosition = currentMousePosition;
-                _draggingOffset = _lastDrawRect.position - currentMousePosition;
+                _initialDragOffset = _lastDrawRect.position - currentMousePosition;
+                _draggingOffset = Vector2.zero;
                 _isDragging = true;
                 currentEvent.Use();
             }
@@ -64,7 +66,9 @@ namespace Entitas.Visual.View.Drawer
                     case EventType.MouseUp:
                         _isDragging = false;
                         currentEvent.Use();
-                        returnValue.Second = true;
+
+                        const float relativeSnapDragThreshold = 0.3f;
+                        returnValue.Second = _draggingOffset.magnitude > GraphWindowMediator.SnapCell.magnitude * relativeSnapDragThreshold;
                         GUIUtility.hotControl = 0;
                         return returnValue;
                 }

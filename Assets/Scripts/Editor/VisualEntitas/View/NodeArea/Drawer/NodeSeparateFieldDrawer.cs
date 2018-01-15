@@ -6,10 +6,21 @@ namespace Entitas.Visual.View.Drawer
 {
     public class NodeSeparateFieldDrawer
     {
+        private enum HoverType
+        {
+            Name,
+            Type
+        }
+
+        public bool IsRenaming { get; private set; }
+
         private Field _field;
 
         private GUIContent _fiendNameContent;
         private GUIContent _fiendTypeContent;
+
+        private HoverType? _lastHoveredOver;
+        private Rect _minusIconHotRect;
 
         public NodeSeparateFieldDrawer(Field field)
         {
@@ -19,6 +30,8 @@ namespace Entitas.Visual.View.Drawer
         public void Draw(Rect contentRect, int i)
         {
             var minusIconSize = new Vector2(32f, 32f);
+
+            _lastHoveredOver = null;
 
             if (i % 2 != 0)
             {
@@ -40,8 +53,12 @@ namespace Entitas.Visual.View.Drawer
                 new Vector2(minusIconSize.x, minusIconSize.y)
             );
 
+            _minusIconHotRect = minusIconRect;
+            _minusIconHotRect.height = contentRect.height - 1f;
+            _minusIconHotRect.y += minusIconRect.height - _minusIconHotRect.height;
+
             var color = GUI.color;
-            GUI.color = minusIconRect.Contains(Event.current.mousePosition)
+            GUI.color = _minusIconHotRect.Contains(Event.current.mousePosition)
                 ? StyleProxy.MinusIconColorHover
                 : StyleProxy.MinusIconColorNormal;
 
@@ -51,18 +68,35 @@ namespace Entitas.Visual.View.Drawer
             var fieldTypeRect = new Rect(contentRect);
             fieldTypeRect.x -= minusIconRect.width;
 
-            DrawHotText(fieldNameContent, fieldNameRect, 
+            _lastHoveredOver = DrawHotText(fieldNameContent, fieldNameRect,
                 StyleProxy.NodeFieldNameStyleNormal,
-                StyleProxy.NodeFieldNameStyleHover);
+                StyleProxy.NodeFieldNameStyleHover) ? HoverType.Name : _lastHoveredOver;
 
-            DrawHotText(fieldTypeContent, fieldTypeRect,
+            _lastHoveredOver = DrawHotText(fieldTypeContent, fieldTypeRect,
                 StyleProxy.NodeFieldTypeStyleNormal,
-                StyleProxy.NodeFieldTypeStyleHover, true);
+                StyleProxy.NodeFieldTypeStyleHover, true) ? HoverType.Type : _lastHoveredOver;
         }
 
-        public void HandleEvent(Event current)
+        /// Returns whether we have clicked on a minus (delete) sign
+        public bool HandleEvent(Event current)
         {
+            if (_lastHoveredOver != null && current.type == EventType.MouseDown)
+            {
+                Debug.Log("Renaming " + _lastHoveredOver + " " + _field.Name);
+                //IsRenaming = true;
+                current.Use();
+            }
 
+            if (current.type == EventType.MouseDown && current.button == 0)
+            {
+                if (_minusIconHotRect.Contains(current.mousePosition))
+                {
+                    current.Use();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private GUIContent GetOrCreateGuiContent(ref GUIContent content, string name)
@@ -75,8 +109,15 @@ namespace Entitas.Visual.View.Drawer
             return content;
         }
 
-        private void DrawHotText(GUIContent content, Rect contentRect, GUIStyle styleNormal, GUIStyle styleHover, bool alignRight = false)
+        private bool DrawHotText(
+            GUIContent content, 
+            Rect contentRect, 
+            GUIStyle styleNormal, 
+            GUIStyle styleHover,
+            bool alignRight = false)
         {
+            bool isHover = false;
+
             var size = StyleProxy.NodeFieldNameStyleNormal.CalcSize(content);
             var hotRect = new Rect(contentRect);
             hotRect.width = size.x;
@@ -88,10 +129,13 @@ namespace Entitas.Visual.View.Drawer
             var style = styleNormal;
             if (hotRect.Contains(Event.current.mousePosition))
             {
+                isHover = true;
                 style = styleHover;
             }
 
             GUI.Box(contentRect, content, style);
+
+            return isHover;
         }
 
         private void DrawHotFieldType(Field field, Rect rect, GUIContent fieldTypeContent, Rect fieldTypeRect, Vector2 minusIconSize)

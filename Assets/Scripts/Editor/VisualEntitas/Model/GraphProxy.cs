@@ -92,9 +92,10 @@ namespace Entitas.Visual.Model
 
         public void AddFieldToNode(Node node, Type type)
         {
-            node.Fields.Add(new Field(Haikunator.Random(), type.FullName));
+            var newField = new Field(Haikunator.Random(), type.FullName);
+            node.Fields.Add(newField);
             SaveGraph(GraphData);
-            SendNotification(NodeFieldAdded, new Tuple<Node, Type>(node, type));
+            SendNotification(NodeFieldAdded, new Tuple<Node, Field>(node, newField));
         }
 
         public void RenameNode(Node node, string name)

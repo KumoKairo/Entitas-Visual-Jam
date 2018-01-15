@@ -50,7 +50,8 @@ namespace Entitas.Visual.View
         {
             return new[]
             {
-                GraphProxy.NodeFieldRemoved
+                GraphProxy.NodeFieldRemoved,
+                GraphProxy.NodeFieldAdded
             };
         }
 
@@ -59,10 +60,17 @@ namespace Entitas.Visual.View
             switch (notification.Name)
             {
                 case GraphProxy.NodeFieldRemoved:
-                    var payload = (Tuple<Node, Field>) notification.Body;
-                    if (payload.First == Node)
+                    var deletedField = (Tuple<Node, Field>) notification.Body;
+                    if (deletedField.First == Node)
                     {
-                        _nodeFieldsDrawer.HandleFieldRemoval(payload.Second);
+                        _nodeFieldsDrawer.HandleFieldRemoval(deletedField.Second);
+                    }
+                    break;
+                case GraphProxy.NodeFieldAdded:
+                    var addedField = (Tuple<Node, Field>)notification.Body;
+                    if (addedField.First == Node)
+                    {
+                        _nodeFieldsDrawer.HandleFieldAddition(addedField.Second);
                     }
                     break;
             }
@@ -147,7 +155,7 @@ namespace Entitas.Visual.View
             _nodeBackgroundDrawer.HandleRightClick(currentEvent, _nodeContextGenericMenu);
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
 
-            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent);
+            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node);
             if (removedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));
@@ -160,7 +168,8 @@ namespace Entitas.Visual.View
             }
             
             Vector2 dragNodePosition;
-            Tuple<bool, bool> isNodeDraggedOrCompletedDragging = _nodeBackgroundDrawer.HandleDrag(currentEvent, out dragNodePosition);
+            Tuple<bool, bool> isNodeDraggedOrCompletedDragging = 
+                _nodeBackgroundDrawer.HandleDrag(currentEvent, out dragNodePosition);
 
             if (isNodeDraggedOrCompletedDragging.First)
             {

@@ -152,16 +152,5 @@ namespace Entitas.Visual.View
         {
             SendNotification(CreateNewComponent, _backgroundDrawer.LastClickPosition);
         }
-
-        public static Vector2 SnapDragPositionToGrid(Vector2 position)
-        {
-            var gridSnap = new Vector2(16f, 16f);
-
-            var snapIncrements = new Vector2(
-                Mathf.Round(position.x / gridSnap.x),
-                Mathf.Round(position.y / gridSnap.y));
-
-            return new Vector2(snapIncrements.x * gridSnap.x, snapIncrements.y * gridSnap.y);
-        }
     }
 }

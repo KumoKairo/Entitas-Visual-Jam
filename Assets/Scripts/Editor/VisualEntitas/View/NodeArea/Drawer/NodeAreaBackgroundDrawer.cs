@@ -12,7 +12,7 @@ namespace Entitas.Visual.View.Drawer
             if (currentEvent.type == EventType.MouseDown 
                 && currentEvent.button == 1)
             {
-                LastClickPosition = NodeAreaMediator.SnapDragPositionToGrid(currentEvent.mousePosition);
+                LastClickPosition = GraphWindowMediator.SnapDragPositionToGrid(currentEvent.mousePosition);
                 currentEvent.Use();
                 contextMenu.ShowAsContext();
             }
