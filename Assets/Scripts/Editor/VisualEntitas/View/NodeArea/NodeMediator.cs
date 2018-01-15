@@ -1,7 +1,9 @@
 ﻿using System;
+using Entitas.Visual.Model;
 using Entitas.Visual.Model.VO;
 using Entitas.Visual.Utils;
 using Entitas.Visual.View.Drawer;
+using PureMVC.Interfaces;
 using PureMVC.Patterns.Mediator;
 using UnityEditor;
 using UnityEngine;
@@ -37,6 +39,28 @@ namespace Entitas.Visual.View
         {
             PaintElements(appView);
             HandleEvents(appView);
+        }
+
+        public override string[] ListNotificationInterests()
+        {
+            return new[]
+            {
+                GraphProxy.NodeFieldRemoved
+            };
+        }
+
+        public override void HandleNotification(INotification notification)
+        {
+            switch (notification.Name)
+            {
+                case GraphProxy.NodeFieldRemoved:
+                    var payload = (Tuple<Node, Field>) notification.Body;
+                    if (payload.First == Node)
+                    {
+                        _nodeFieldsDrawer.HandleFieldRemoval(payload.Second);
+                    }
+                    break;
+            }
         }
 
         private void PaintElements(EditorWindow appView)
@@ -115,7 +139,12 @@ namespace Entitas.Visual.View
 
             _nodeBackgroundDrawer.HandleRightClick(currentEvent, _nodeContextGenericMenu);
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
-
+            var removedField = _nodeFieldsDrawer.HandleFieldDeletionClick(currentEvent);
+            if (removedField != null)
+            {
+                SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));
+            }
+            
             Vector2 dragNodePosition;
             Tuple<bool, bool> isNodeDraggedOrCompletedDragging = _nodeBackgroundDrawer.HandleDrag(currentEvent, out dragNodePosition);
 
@@ -128,7 +157,7 @@ namespace Entitas.Visual.View
                 SendNotification(NodeAreaMediator.NodePositionUpdate, new Tuple<Node, Vector2>(Node, dragNodePosition));
             }
 
-            if (chevronPressed || isNodeDraggedOrCompletedDragging.First)
+            if (chevronPressed || isNodeDraggedOrCompletedDragging.First || removedField != null)
             {
                 appView.Repaint();
             }
@@ -136,7 +165,7 @@ namespace Entitas.Visual.View
 
         private void OnAddFieldToNode(Type fieldType)
         {
-            SendNotification(NodeAreaMediator.AddNewNodeField, new Tuple<Node, Type>(Node, fieldType));
+            SendNotification(NodeAreaMediator.NodeFieldAdd, new Tuple<Node, Type>(Node, fieldType));
         }
 
         private void OnRemoveNode()

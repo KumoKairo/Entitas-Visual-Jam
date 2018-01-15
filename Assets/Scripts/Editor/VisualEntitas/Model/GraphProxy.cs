@@ -2,6 +2,7 @@
 using System.IO;
 using Atrox;
 using Entitas.Visual.Model.VO;
+using Entitas.Visual.Utils;
 using PureMVC.Patterns.Proxy;
 using UnityEngine;
 
@@ -10,7 +11,11 @@ namespace Entitas.Visual.Model
     public class GraphProxy : Proxy
     {
         public const string NodeAdded = "GraphNodeAdded";
+        public const string NodePositionUpdated = "GraphNodePositionUpdated";
         public const string NodeRemoved = "GraphNodeRemoved";
+        public const string NodeCollapsed = "GraphNodeCollapsed";
+        public const string NodeFieldAdded = "GraphNodeFieldAdded";
+        public const string NodeFieldRemoved = "GraphNodeFieldRemoved";
 
         public const string GraphPath = "/Graph.json";
 
@@ -60,22 +65,35 @@ namespace Entitas.Visual.Model
             }
         }
 
+        public void RemoveNodeField(Node node, Field field)
+        {
+            var fieldRemoved = node.Fields.Remove(field);
+            if (fieldRemoved)
+            {
+                SaveGraph(GraphData);
+                SendNotification(NodeFieldRemoved, new Tuple<Node, Field>(node, field));
+            }
+        }
+
         public void UpdateNodePosition(Node node, Vector2 newPosition)
         {
             node.Position.position = newPosition;
             SaveGraph(GraphData);
+            SendNotification(NodePositionUpdated, node);
         }
 
         public void CollapseNode(Node node)
         {
             node.IsCollapsed = !node.IsCollapsed;
             SaveGraph(GraphData);
+            SendNotification(NodeCollapsed, node);
         }
 
         public void AddFieldToNode(Node node, Type type)
         {
             node.Fields.Add(new Field(Haikunator.Random(), type.FullName));
             SaveGraph(GraphData);
+            SendNotification(NodeFieldAdded, new Tuple<Node, Type>(node, type));
         }
 
         public Graph GraphData

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Entitas.Visual.Model;
 using Entitas.Visual.Model.VO;
@@ -15,10 +14,11 @@ namespace Entitas.Visual.View
         public const string Name = "NodeAreaMediator";
 
         public const string CreateNewComponent = "Node_CreateNewComponent";
-        public const string AddNewNodeField = "Node_AddNewField";
+        public const string NodeFieldAdd = "Node_AddNewField";
         public const string NodePositionUpdate = "Node_PositionUpdate";
         public const string NodeRemove = "Node_Remove";
-        public const string NodeCollapse = "Node_Collapse";
+        public const string NodeCollapse = "Node_Collapse"; 
+        public const string NodeFieldRemove = "Node_FieldRemove";
 
         private NodeAreaBackgroundDrawer _backgroundDrawer;
         private List<NodeMediator> _nodeMediators;

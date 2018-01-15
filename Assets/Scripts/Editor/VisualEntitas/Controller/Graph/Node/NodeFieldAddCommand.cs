@@ -7,7 +7,7 @@ using PureMVC.Patterns.Command;
 
 namespace Entitas.Visual.Controller.Graph
 {
-    public class NodeAddNewFieldCommand : SimpleCommand
+    public class NodeFieldAddCommand : SimpleCommand
     {
         public override void Execute(INotification notification)
         {

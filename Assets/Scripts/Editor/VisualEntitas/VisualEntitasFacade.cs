@@ -23,10 +23,13 @@ namespace Entitas.Visual
             RegisterCommand(Teardown, () => new TeardownCommand());
 
             RegisterCommand(NodeAreaMediator.CreateNewComponent, () => new ComponentNodeCreateNewCommand());
-            RegisterCommand(NodeAreaMediator.AddNewNodeField, () => new NodeAddNewFieldCommand());
+
+            RegisterCommand(NodeAreaMediator.NodeFieldAdd, () => new NodeFieldAddCommand());
+            RegisterCommand(NodeAreaMediator.NodeFieldRemove, () => new NodeFieldRemoveCommand());
+
             RegisterCommand(NodeAreaMediator.NodePositionUpdate, () => new NodeUpdatePositionCommand());
             RegisterCommand(NodeAreaMediator.NodeRemove, () => new NodeRemoveCommand());
-            RegisterCommand(NodeAreaMediator.NodeCollapse, () => new NodeCollapseCommand());
+            RegisterCommand(NodeAreaMediator.NodeCollapse, () => new NodeCollapseCommand()); 
         }
 
         public void Start(EditorWindow mainWindow)
