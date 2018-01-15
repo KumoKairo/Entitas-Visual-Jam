@@ -33,7 +33,7 @@ namespace Entitas.Visual.View
             _nodeTitleDrawer = new NodeTitleDrawer();
             _nodeFieldsAdditonWidgetDrawer = new NodeFieldsAdditonWidgetDrawer();
             _nodeCollapseChevronDrawer = new NodeCollapseChevronDrawer();
-            _nodeFieldsDrawer = new NodeFieldsDrawer();
+            _nodeFieldsDrawer = new NodeFieldsDrawer(node);
         }
 
         public void OnGUI(EditorWindow appView, bool handleEvents)
@@ -109,7 +109,7 @@ namespace Entitas.Visual.View
 
             _nodeCollapseChevronDrawer.OnGUI(appView, chevronRect, isNodeCollapsed);
 
-            IsRenaming = _nodeTitleDrawer.IsRenaming || _nodeFieldsDrawer.IsRenaming;
+            IsRenaming = _nodeTitleDrawer.IsRenaming;
         }
 
         private void HandleEvents(EditorWindow appView)
@@ -147,7 +147,7 @@ namespace Entitas.Visual.View
             _nodeBackgroundDrawer.HandleRightClick(currentEvent, _nodeContextGenericMenu);
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
 
-            var removedField = _nodeFieldsDrawer.HandleFieldDeletionClick(currentEvent);
+            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent);
             if (removedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));

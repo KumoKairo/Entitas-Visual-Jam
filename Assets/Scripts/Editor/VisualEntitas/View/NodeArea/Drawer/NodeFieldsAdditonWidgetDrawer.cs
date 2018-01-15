@@ -16,18 +16,21 @@ namespace Entitas.Visual.View.Drawer
             var fieldsTextSize = StyleProxy.NodeFieldNameStyleNormal.CalcSize(new GUIContent("FIELDS"));
             var plusIconSize = new Vector2(32f, 32f);
 
-            var plusIconPosition = new Rect(
+            var plusIconRect = new Rect(
                 rect.x + rect.width - plusIconSize.x,
                 rect.y,
                 plusIconSize.x,
                 plusIconSize.y
             );
 
-            _lastViewRect = plusIconPosition;
+            _lastViewRect = plusIconRect;
 
             var color = GUI.color;
-            GUI.color = StyleProxy.NodeFieldNameTextColorNormal;
-            GUI.DrawTexture(plusIconPosition, StyleProxy.PlusIconTexture);
+            GUI.color = plusIconRect.Contains(Event.current.mousePosition)
+                ? StyleProxy.NodeFieldNameTextColorHover
+                : StyleProxy.NodeFieldNameTextColorNormal;
+
+            GUI.DrawTexture(plusIconRect, StyleProxy.PlusIconTexture);
             GUI.color = color;
 
             var fieldsTextPosition = new Rect(

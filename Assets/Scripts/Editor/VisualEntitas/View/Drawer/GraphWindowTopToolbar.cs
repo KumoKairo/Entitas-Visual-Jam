@@ -6,9 +6,6 @@ namespace Entitas.Visual.View.Drawer
 {
     public class GraphWindowTopToolbar
     {
-        private Color _buttonColor;
-        private Rect _lastCompileButtonRect;
-
         public void OnGUI(EditorWindow parentWindow, float toolbarHeight)
         {
             var toolbarRect = new Rect(0f, 0f, parentWindow.position.width, toolbarHeight);
@@ -19,28 +16,29 @@ namespace Entitas.Visual.View.Drawer
             compileButtonRect.y -= (buttonSize.y - toolbarHeight) * 0.5f;
             compileButtonRect.x += 6f;
 
-            _lastCompileButtonRect = compileButtonRect;
+            var compileButtonHotRect = new Rect(compileButtonRect);
+            compileButtonHotRect.height = toolbarHeight;
+
+            var buttonColor = StyleProxy.CompileButtonColorNormal;
+            if (compileButtonHotRect.Contains(Event.current.mousePosition))
+            {
+                buttonColor = StyleProxy.CompileButtonColorHover;
+            }
 
             var refreshButtonRect = new Rect(compileButtonRect);
             refreshButtonRect.x -= 36;
 
             var color = GUI.color;
 
-            GUI.color = _buttonColor;//StyleProxy.CompileButtonColorNormal;
+            GUI.color = buttonColor;
             GUI.DrawTexture(compileButtonRect, StyleProxy.CompileButtonTexture);
-            GUI.DrawTexture(refreshButtonRect, StyleProxy.RefreshIconTexture);
 
             GUI.color = color;
         }
 
         public void HandleEvents(Event current)
         {
-            _buttonColor = StyleProxy.CompileButtonColorNormal;
-
-            if (_lastCompileButtonRect.Contains(current.mousePosition))
-            {
-                _buttonColor = StyleProxy.CompileButtonColorHover;
-            }
+            
         }
     }
 }

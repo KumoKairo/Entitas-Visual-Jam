@@ -171,7 +171,8 @@ namespace Entitas.Visual.View
             }
         }
 
-        public static Color MinusIconColor = new Color32(192, 57, 43, 255);
+        public static Color MinusIconColorNormal = new Color32(192, 57, 43, 255);
+        public static Color MinusIconColorHover = new Color32(192, 57, 43, 180);
 
         public static object _minusIconTexture;
         public static Texture2D MinusIconTexture
@@ -187,7 +188,7 @@ namespace Entitas.Visual.View
 
         public static Color CompileButtonColorNormal = new Color32(233, 148, 72, 255);
         public static Color CompileButtonColorHover = new Color32(233, 148, 72, 155);
-        public static Color CompileButtonColorPressed = new Color32(211, 84, 0, 15);
+        public static Color CompileButtonColorPressed = new Color32(211, 84, 0, 205);
         public static object _compileButtonTexture;
         public static Texture2D CompileButtonTexture
         {
