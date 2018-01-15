@@ -20,6 +20,7 @@ namespace Entitas.Visual.View
         public const string NodeCollapse = "Node_Collapse"; 
         public const string NodeFieldRemove = "Node_FieldRemove";
         public const string NodeRename = "Node_Rename";
+        public const string NodeResize = "Node_Resize";
         public const string NodeFieldRename = "Node_FieldRename";
         public const string NodeFieldChangeType = "Node_FieldChangeType";
 
@@ -130,11 +131,6 @@ namespace Entitas.Visual.View
 
         public override void HandleNotification(INotification notification)
         {
-            if (notification.Name != VisualEntitasFacade.OnGUI)
-            {
-                Debug.Log("Received " + notification.Name);
-            }
-
             base.HandleNotification(notification);
             Node payload = null;
             switch (notification.Name)

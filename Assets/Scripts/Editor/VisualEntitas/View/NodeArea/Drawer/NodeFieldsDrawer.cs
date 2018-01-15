@@ -35,7 +35,7 @@ namespace Entitas.Visual.View.Drawer
             }
         }
 
-        public Field HandleEvents(Event currentEvent, Node node, out Field renamedField)
+        public Field HandleEvents(Event currentEvent, Node node, out Field renamedField, out float fieldsDesiredWidth)
         {
             Field deletedField = null;
             renamedField = null;
@@ -51,6 +51,8 @@ namespace Entitas.Visual.View.Drawer
                 }
             }
 
+            fieldsDesiredWidth = 0f;
+
             for (int i = 0; i < node.Fields.Count; i++)
             {
                 var field = node.Fields[i];
@@ -59,7 +61,16 @@ namespace Entitas.Visual.View.Drawer
                 if (renamingDrawer == null || renamingDrawer == fieldDrawer)
                 {
                     bool hasSuccessfullyRenamedField;
-                    var isDeleted = _fieldToDrawer[field].HandleEvent(currentEvent, out hasSuccessfullyRenamedField);
+
+                    float currentFieldDesiredWidth;
+                    var isDeleted = _fieldToDrawer[field].HandleEvent(currentEvent, out hasSuccessfullyRenamedField,
+                        out currentFieldDesiredWidth);
+
+                    if (currentFieldDesiredWidth > fieldsDesiredWidth)
+                    {
+                        fieldsDesiredWidth = currentFieldDesiredWidth;
+                    }
+
                     deletedField = isDeleted ? field : deletedField;
                     renamedField = hasSuccessfullyRenamedField ? field : renamedField;
                 }
@@ -76,9 +87,11 @@ namespace Entitas.Visual.View.Drawer
             }
         }
 
-        public void HandleFieldAddition(Field addedField)
+        public void HandleFieldAddition(Field addedField, FieldTypeProviderProxy fieldTypeProviderProxy,
+            Action<Field, Type> onFieldTypeChanged)
         {
             _fieldToDrawer[addedField] = new NodeSeparateFieldDrawer(addedField);
+            _fieldToDrawer[addedField].OnRegister(fieldTypeProviderProxy, onFieldTypeChanged);
         }
 
         public void OnRegister(FieldTypeProviderProxy typeProviderProxy, Action<Field, Type> onFieldTypeChanged)

@@ -19,6 +19,7 @@ namespace Entitas.Visual.Model
         public const string NodeFieldRenamed = "GraphNodeFieldRenamed";
         public const string NodeFieldTypeChanged = "GraphNodeFieldTypeChanged";
         public const string NodeRenamed = "GraphNodeRenamed";
+        public const string NodeResized = "GraphNodeResized";
 
         public const string GraphPath = "/Graph.json";
 
@@ -48,7 +49,7 @@ namespace Entitas.Visual.Model
         {
             var newNode = new Node
             {
-                Position = new Rect(mousePosition, new Vector2(240f, 80f)),
+                Position = new Rect(mousePosition, new Vector2(Node.DefaultWidth, Node.DefaultHeight)),
                 Name = Haikunator.Random()
             };
             GraphData.Nodes.Add(newNode);
@@ -124,14 +125,18 @@ namespace Entitas.Visual.Model
             File.WriteAllText(_totalGraphPath, serializedString);
         }
 
-        public void ChangeFieldType(Tuple<Node, Field, Type> payload)
+        public void ChangeFieldType(Node node, Field field, Type type)
         {
-            var field = payload.Second;
-            var type = payload.Third;
-
             field.Type = type.FullName;
             SaveGraph(GraphData);
-            SendNotification(NodeFieldTypeChanged);
+            SendNotification(NodeFieldTypeChanged, new Tuple<Node, Field, Type>(node, field, type));
+        }
+
+        public void ResizeNode(Node node, Rect newRect)
+        {
+            node.Position = newRect;
+            SaveGraph(GraphData);
+            SendNotification(NodeResized, new Tuple<Node, Rect>(node, newRect));
         }
     }
 }

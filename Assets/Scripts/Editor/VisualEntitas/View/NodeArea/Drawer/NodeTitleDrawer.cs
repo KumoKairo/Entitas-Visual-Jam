@@ -9,7 +9,7 @@ namespace Entitas.Visual.View.Drawer
     {
         public bool IsRenaming { get; private set; }
 
-        private Node _lastLinkedNode;
+        private Node _node;
         private Rect _lastTitleRect;
 
         private string _originalName;
@@ -17,7 +17,7 @@ namespace Entitas.Visual.View.Drawer
 
         public void OnGUI(EditorWindow appView, Rect titleRect, Node node)
         {
-            _lastLinkedNode = node;
+            _node = node;
 
             GUIHelper.DrawQuad(titleRect, StyleProxy.NodeTitleBackdropColor);
 
@@ -34,13 +34,18 @@ namespace Entitas.Visual.View.Drawer
 
             if (IsRenaming)
             {
-                var color = GUI.skin.settings.selectionColor;
+                var selectionColor = GUI.skin.settings.selectionColor;
+                var cursorColor = GUI.skin.settings.cursorColor;
+
                 GUI.skin.settings.selectionColor = StyleProxy.NodeTitleRenamingBackdropColor;
+                GUI.skin.settings.cursorColor = StyleProxy.NodeTitleColorNormal;
 
                 GUI.SetNextControlName(_originalName);
 
                 node.Name = EditorGUI.TextField(titlePosition, node.Name, StyleProxy.NodeTitleTextStyleNormal);
-                GUI.skin.settings.selectionColor = color;
+
+                GUI.skin.settings.selectionColor = selectionColor;
+                GUI.skin.settings.cursorColor = cursorColor;
 
                 if (GUI.GetNameOfFocusedControl() != _originalName)
                 {
@@ -65,8 +70,13 @@ namespace Entitas.Visual.View.Drawer
             return hotRect;
         }
 
-        public bool HandleOnGUI(Event currentEvent)
+        public bool HandleOnGUI(Event currentEvent, out float desiredWidth)
         {
+            var hotTitleRect = GetHotRect(_lastTitleRect,
+                GUIHelper.GetOrCreateOrUpdateGUIContentFor(_node.Name, ref _titleContent));
+
+            desiredWidth = hotTitleRect.width + NodeMediator.TitleMargins * 2f;
+
             if (IsRenaming)
             {
                 bool shoudlUseEvent = false;
@@ -75,7 +85,7 @@ namespace Entitas.Visual.View.Drawer
                 switch (currentEvent.keyCode)
                 {
                     case KeyCode.Escape:
-                        _lastLinkedNode.Name = _originalName;
+                        _node.Name = _originalName;
                         shoudlUseEvent = true;
                         break;
                     case KeyCode.Return:
@@ -86,7 +96,7 @@ namespace Entitas.Visual.View.Drawer
 
                 if (!_lastTitleRect.Contains(currentEvent.mousePosition) && currentEvent.type == EventType.MouseDown)
                 {
-                    _lastLinkedNode.Name = _originalName;
+                    _node.Name = _originalName;
                     shoudlUseEvent = true;
                 }
 
@@ -104,10 +114,7 @@ namespace Entitas.Visual.View.Drawer
             }
             else
             {
-                var hotTitleRect = GetHotRect(_lastTitleRect,
-                    GUIHelper.GetOrCreateOrUpdateGUIContentFor(_lastLinkedNode.Name, ref _titleContent));
-
-                if (hotTitleRect.Contains(currentEvent.mousePosition) 
+                if (hotTitleRect.Contains(currentEvent.mousePosition)
                     && currentEvent.button == 0
                     && currentEvent.clickCount == 2)
                 {
@@ -121,7 +128,7 @@ namespace Entitas.Visual.View.Drawer
         public void StartRenaming()
         {
             IsRenaming = true;
-            _originalName = _lastLinkedNode.Name;
+            _originalName = _node.Name;
         }
     }
 }

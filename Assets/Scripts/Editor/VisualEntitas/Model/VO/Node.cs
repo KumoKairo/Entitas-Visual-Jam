@@ -8,6 +8,9 @@ namespace Entitas.Visual.Model.VO
     [Serializable]
     public class Node
     {
+        public const float DefaultWidth = 200f;
+        public const float DefaultHeight = 60;
+
         public bool IsCollapsed;
         public Rect Position;
 

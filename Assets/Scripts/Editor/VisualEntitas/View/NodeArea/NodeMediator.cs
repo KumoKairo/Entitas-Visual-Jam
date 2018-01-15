@@ -13,6 +13,7 @@ namespace Entitas.Visual.View
     public class NodeMediator : Mediator
     {
         public const string Name = "NodeMediator";
+        public const float TitleMargins = 8f;
 
         public bool IsRenaming { get; private set; }
         public Node Node { get; private set; }
@@ -83,7 +84,7 @@ namespace Entitas.Visual.View
                     var addedField = (Tuple<Node, Field>)notification.Body;
                     if (addedField.First == Node)
                     {
-                        _nodeFieldsDrawer.HandleFieldAddition(addedField.Second);
+                        _nodeFieldsDrawer.HandleFieldAddition(addedField.Second, _fieldTypeProviderProxy, _onFieldTypeChanged);
                     }
                     break;
             }
@@ -171,18 +172,19 @@ namespace Entitas.Visual.View
             _nodeFieldsAdditonWidgetDrawer.HandleEvents(currentEvent, _addFieldsGenericMenu);
 
             Field renamedField;
-            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node, out renamedField);
+            float fieldsDesiredWidth;
+            var removedField = _nodeFieldsDrawer.HandleEvents(currentEvent, Node, out renamedField, out fieldsDesiredWidth);
             if (removedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRemove, new Tuple<Node, Field>(Node, removedField));
             }
-
             if (renamedField != null)
             {
                 SendNotification(NodeAreaMediator.NodeFieldRename, new Tuple<Node, Field>(Node, renamedField));
             }
 
-            var titleChanged = _nodeTitleDrawer.HandleOnGUI(currentEvent);
+            float titleDesiredWidth;
+            var titleChanged = _nodeTitleDrawer.HandleOnGUI(currentEvent, out titleDesiredWidth);
             if (titleChanged)
             {
                 SendNotification(NodeAreaMediator.NodeRename, new Tuple<Node, string>(Node, Node.Name));
@@ -199,6 +201,24 @@ namespace Entitas.Visual.View
             if (isNodeDraggedOrCompletedDragging.Second)
             {
                 SendNotification(NodeAreaMediator.NodePositionUpdate, new Tuple<Node, Vector2>(Node, dragNodePosition));
+            }
+
+            var desiredWidth = Mathf.Max(titleDesiredWidth, fieldsDesiredWidth);
+            var newPositionRect = new Rect(Node.Position);
+            newPositionRect.width = desiredWidth;
+
+            if (newPositionRect.width < Node.DefaultWidth)
+            {
+                newPositionRect.width = Node.DefaultWidth;
+            }
+
+            int snapSteps = Mathf.CeilToInt(newPositionRect.width / GraphWindowMediator.CellWidth);
+            newPositionRect.width = GraphWindowMediator.CellWidth * snapSteps;
+
+            if (!Mathf.Approximately(newPositionRect.width, Node.Position.width))
+            {
+                Node.Position = newPositionRect;
+                SendNotification(NodeAreaMediator.NodeResize, new Tuple<Node, Rect>(Node, newPositionRect));
             }
         }
 

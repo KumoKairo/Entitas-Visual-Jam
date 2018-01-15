@@ -27,6 +27,9 @@ namespace Entitas.Visual.View.Drawer
         private string _initialFieldName;
 
         private GenericMenu _changeFieldTypeGenericMenu;
+        private Vector2 _minusIconSize = new Vector2(32f, 32f);
+        private const float _leftMargin = 8f;
+        private const float _fieldNameToFieldTypeMargin = 16f;
 
         public NodeSeparateFieldDrawer(Field field)
         {
@@ -35,8 +38,6 @@ namespace Entitas.Visual.View.Drawer
 
         public void Draw(Rect contentRect, int i)
         {
-            var minusIconSize = new Vector2(32f, 32f);
-
             _lastHoveredOver = null;
 
             if (i % 2 != 0)
@@ -51,12 +52,12 @@ namespace Entitas.Visual.View.Drawer
             var fieldTypeContent = GUIHelper.GetOrCreateOrUpdateGUIContentFor(displayFieldType, ref _fiendNameContent);
 
             var fieldNameRect = new Rect(contentRect);
-            fieldNameRect.x += 8f;
+            fieldNameRect.x += _leftMargin;
 
-            var minusIconCenter = contentRect.y + contentRect.height * 0.5f - minusIconSize.y * 0.5f;
+            var minusIconCenter = contentRect.y + contentRect.height * 0.5f - _minusIconSize.y * 0.5f;
             var minusIconRect = new Rect(
-                new Vector2(contentRect.x + contentRect.width - minusIconSize.x, minusIconCenter),
-                new Vector2(minusIconSize.x, minusIconSize.y)
+                new Vector2(contentRect.x + contentRect.width - _minusIconSize.x, minusIconCenter),
+                new Vector2(_minusIconSize.x, _minusIconSize.y)
             );
 
             _minusIconHotRect = minusIconRect;
@@ -79,10 +80,16 @@ namespace Entitas.Visual.View.Drawer
                 var controlRectName = contentRect.ToString();
                 GUI.SetNextControlName(controlRectName);
 
-                color = GUI.skin.settings.selectionColor;
+                var selectionColor = GUI.skin.settings.selectionColor;
+                var cursorColor = GUI.skin.settings.cursorColor;
+
                 GUI.skin.settings.selectionColor = StyleProxy.NodeFieldNameTextRenamingBackgroundColor;
+                GUI.skin.settings.cursorColor = StyleProxy.NodeFieldNameTextColorNormal;
+
                 _field.Name = EditorGUI.TextField(fieldNameRect, _field.Name, StyleProxy.NodeFieldNameStyleHover);
-                GUI.skin.settings.selectionColor = color;
+
+                GUI.skin.settings.selectionColor = selectionColor;
+                GUI.skin.settings.cursorColor = cursorColor;
 
                 if (GUI.GetNameOfFocusedControl() != controlRectName)
                 {
@@ -112,9 +119,11 @@ namespace Entitas.Visual.View.Drawer
         }
 
         /// Returns whether we have clicked on a minus (delete) sign (FIRST)
-        public bool HandleEvent(Event current, out bool hasSuccessfullyRenamedField)
+        public bool HandleEvent(Event current, out bool hasSuccessfullyRenamedField, out float currentFieldDesiredWidth)
         {
             hasSuccessfullyRenamedField = false;
+
+            currentFieldDesiredWidth = CalculateCurrentDesiredWidth();
 
             if (_lastHoveredOver != null 
                 && _lastHoveredOver.Value == HoverType.Name
@@ -141,7 +150,11 @@ namespace Entitas.Visual.View.Drawer
                 bool shouldUseEvent = false;
                 bool shouldContinueRenaming = true;
 
-                if (_lastHoveredOver == null && current.type == EventType.MouseDown || current.keyCode == KeyCode.Escape)
+                var isNotHoveringOverOrHoveringOverType =
+                    _lastHoveredOver == null || _lastHoveredOver.Value == HoverType.Type;
+
+                if (isNotHoveringOverOrHoveringOverType && current.type == EventType.MouseDown 
+                    || current.keyCode == KeyCode.Escape)
                 {
                     shouldContinueRenaming = false;
                     shouldUseEvent = true;
@@ -177,6 +190,14 @@ namespace Entitas.Visual.View.Drawer
             return false;
         }
 
+        private float CalculateCurrentDesiredWidth()
+        {
+            var fieldNameSize = StyleProxy.NodeFieldNameStyleNormal.CalcSize(_fiendNameContent);
+            var fieldTypeSuze = StyleProxy.NodeFieldTypeStyleNormal.CalcSize(_fiendTypeContent);
+
+            return fieldNameSize.x + _fieldNameToFieldTypeMargin + fieldTypeSuze.x + _leftMargin + _minusIconSize.x ;
+        }
+
         private bool DrawHotText(
             GUIContent content, 
             Rect contentRect, 
@@ -204,31 +225,6 @@ namespace Entitas.Visual.View.Drawer
             GUI.Box(contentRect, content, style);
 
             return isHover;
-        }
-
-        private void DrawHotFieldType(Field field, Rect rect, GUIContent fieldTypeContent, Rect fieldTypeRect, Vector2 minusIconSize)
-        {
-            var fieldTypeSize = StyleProxy.NodeFieldNameStyleNormal.CalcSize(fieldTypeContent);
-            var hotTypeRect = new Rect(fieldTypeRect);
-            hotTypeRect.width = fieldTypeSize.x;
-            hotTypeRect.x = rect.x + rect.width - hotTypeRect.width - minusIconSize.x;
-
-            var fieldTypeStyle = StyleProxy.NodeFieldTypeStyleNormal;
-            if (hotTypeRect.Contains(Event.current.mousePosition))
-            {
-                fieldTypeStyle = StyleProxy.NodeFieldTypeStyleHover;
-            }
-
-            GUI.Box(fieldTypeRect, fieldTypeContent, fieldTypeStyle);
-        }
-
-        public void OnRegister(FieldTypeProviderProxy typeProviderProxy)
-        {
-            _changeFieldTypeGenericMenu = new GenericMenu();
-            foreach (var type in typeProviderProxy.FieldTypeProviderData.Types)
-            {
-                
-            }
         }
     }
 }

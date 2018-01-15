@@ -29,6 +29,7 @@ namespace Entitas.Visual
             RegisterCommand(NodeAreaMediator.NodeFieldRename, () => new NodeFieldRenameCommand());
             RegisterCommand(NodeAreaMediator.NodeFieldChangeType, () => new NodeChangeFieldTypeCommand());
             RegisterCommand(NodeAreaMediator.NodeRename, () => new NodeRenameCommand());
+            RegisterCommand(NodeAreaMediator.NodeResize, () => new NodeResizeCommand());
 
             RegisterCommand(NodeAreaMediator.NodePositionUpdate, () => new NodeUpdatePositionCommand());
             RegisterCommand(NodeAreaMediator.NodeRemove, () => new NodeRemoveCommand());
