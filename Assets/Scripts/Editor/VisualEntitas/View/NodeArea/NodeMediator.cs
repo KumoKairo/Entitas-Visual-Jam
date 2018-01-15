@@ -50,7 +50,7 @@ namespace Entitas.Visual.View
             _nodeFieldsDrawer.OnRegister(_fieldTypeProviderProxy, _onFieldTypeChanged);
         }
 
-        public void OnGUI(EditorWindow appView, bool handleEvents)
+        public void OnGUI(EditorWindow appView)
         {
             if (_fieldTypeProviderProxy == null)
             {
@@ -58,11 +58,6 @@ namespace Entitas.Visual.View
             }
 
             PaintElements(appView);
-
-            if (handleEvents)
-            {
-                HandleEvents(appView);
-            }
         }
 
         public override string[] ListNotificationInterests()
@@ -100,7 +95,7 @@ namespace Entitas.Visual.View
             float titleHeight = 48f;
             float fieldsAdditionLineHeight = 32f;
 
-            float fieldLineHeight = 20f;
+            float fieldLineHeight = 22f;
             float chevronBackdropHeight = 16f;
 
             var isNodeCollapsed = Node.IsCollapsed;
@@ -160,7 +155,7 @@ namespace Entitas.Visual.View
             }
         }
 
-        private void HandleEvents(EditorWindow appView)
+        public void HandleEvents()
         {
             var currentEvent = Event.current;
             if (currentEvent.type == EventType.Repaint || currentEvent.type == EventType.Layout)

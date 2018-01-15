@@ -60,15 +60,18 @@ namespace Entitas.Visual.View
                 }
             }
 
-            foreach (var nodeMediator in _nodeMediators)
+            for (int i = 0; i < _nodeMediators.Count; i++)
             {
-                var shouldHandleEvents = true;
-                if (mediatorDuringRename != null)
-                {
-                    shouldHandleEvents = nodeMediator == mediatorDuringRename;
-                }
+                _nodeMediators[i].OnGUI(appView);
+            }
 
-                nodeMediator.OnGUI(appView, shouldHandleEvents);
+            for (int i = _nodeMediators.Count - 1; i >= 0; i--)
+            {
+                var nodeMediator = _nodeMediators[i];
+                if (mediatorDuringRename == null || mediatorDuringRename == nodeMediator)
+                {
+                    nodeMediator.HandleEvents();
+                }
             }
 
             var currentEvent = Event.current;
