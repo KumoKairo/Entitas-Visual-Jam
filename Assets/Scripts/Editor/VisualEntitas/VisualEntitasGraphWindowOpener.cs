@@ -1,5 +1,8 @@
-﻿using PureMVC.Patterns.Facade;
+﻿using System.Reflection;
+using Entitas.Visual.View;
+using PureMVC.Patterns.Facade;
 using UnityEditor;
+using UnityEngine;
 
 namespace Entitas.Visual
 {
@@ -17,6 +20,8 @@ namespace Entitas.Visual
         {
             Repaint();
         }
+
+        private float scale = 1f;
 
         public void OnGUI()
         {

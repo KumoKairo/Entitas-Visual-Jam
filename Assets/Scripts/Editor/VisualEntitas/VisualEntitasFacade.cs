@@ -14,6 +14,7 @@ namespace Entitas.Visual
         public const string Name = "VisualEntitasCore";
         public const string Startup = Name + "Startup";
         public const string Teardown = Name + "Teardown";
+        public const string SaveAndCompile = Name + "SaveAndCompile";
 
         protected override void InitializeController()
         {
@@ -21,6 +22,7 @@ namespace Entitas.Visual
 
             RegisterCommand(Startup, () => new StartupCommand());
             RegisterCommand(Teardown, () => new TeardownCommand());
+            RegisterCommand(SaveAndCompile, () => new SaveAndCompileMacroCommand());
 
             RegisterCommand(NodeAreaMediator.CreateNewComponent, () => new ComponentNodeCreateNewCommand());
 

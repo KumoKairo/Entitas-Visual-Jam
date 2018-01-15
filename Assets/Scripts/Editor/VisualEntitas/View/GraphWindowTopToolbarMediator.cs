@@ -28,7 +28,13 @@ namespace Entitas.Visual.View
         {
             float toolbarHeight = 32f;
             _toolbar.OnGUI(appView, toolbarHeight);
-            _toolbar.HandleEvents(Event.current);
+            bool shouldCompile;
+            _toolbar.HandleEvents(Event.current, out shouldCompile);
+
+            if (shouldCompile)
+            {
+                SendNotification(VisualEntitasFacade.SaveAndCompile);
+            }
         }
     }
 }

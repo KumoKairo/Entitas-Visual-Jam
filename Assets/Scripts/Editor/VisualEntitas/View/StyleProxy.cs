@@ -245,10 +245,17 @@ namespace Entitas.Visual.View
         public static Color CompileButtonColorNormal = new Color32(233, 148, 72, 255);
         public static Color CompileButtonColorHover = new Color32(233, 148, 72, 155);
         public static Color CompileButtonColorPressed = new Color32(211, 84, 0, 205);
+
         public static object _compileButtonTexture;
         public static Texture2D CompileButtonTexture
         {
             get { return (Texture2D)(_compileButtonTexture = _compileButtonTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.save.png")); }
+        }
+
+        public static object _enableLogsTexture;
+        public static Texture2D EnableLogsTexture
+        {
+            get { return (Texture2D)(_enableLogsTexture = _enableLogsTexture ?? EditorGUIUtility.Load("Textures/Icons/appbar.draw.pencil.reflection.png")); }
         }
 
         public static object _componentIconTexture;
