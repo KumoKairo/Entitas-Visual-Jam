@@ -123,17 +123,18 @@ namespace Entitas.Visual.View
             _nodeBackgroundDrawer.OnGUI(appView, backgroundRect, chevronRect.height);
             _nodeTitleDrawer.OnGUI(appView, titleRect, Node);
 
+            float fieldsDesiredWidth = 0f;
             if (!isNodeCollapsed)
             {
                 _nodeFieldsAdditonWidgetDrawer.OnGUI(appView, addFieldsRect);
                 _nodeFieldsDrawer.OnGUI(fieldsRect, fieldLineHeight, Node);
+                fieldsDesiredWidth = _nodeFieldsDrawer.GetDesiredWidth();
             }
 
             _nodeCollapseChevronDrawer.OnGUI(appView, chevronRect, isNodeCollapsed);
 
             IsRenaming = _nodeTitleDrawer.IsRenaming;
 
-            float fieldsDesiredWidth = _nodeFieldsDrawer.GetDesiredWidth();
             float titleDesiredWidth = _nodeTitleDrawer.GetDesiredWidth();
 
             var desiredWidth = Mathf.Max(titleDesiredWidth, fieldsDesiredWidth);
@@ -157,6 +158,11 @@ namespace Entitas.Visual.View
 
         public void HandleEvents()
         {
+            if (_fieldTypeProviderProxy == null)
+            {
+                return;
+            }
+
             var currentEvent = Event.current;
             if (currentEvent.type == EventType.Repaint || currentEvent.type == EventType.Layout)
             {

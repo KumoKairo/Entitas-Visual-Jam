@@ -1,14 +1,14 @@
 ﻿using PureMVC.Interfaces;
 using PureMVC.Patterns.Command;
-using UnityEngine;
+using UnityEditor;
 
 namespace Entitas.Visual.Controller.CodeGeneration
 {
-    public class GenerateComponentsCommand : SimpleCommand
+    public class RefreshAssetDatabaseCommand : SimpleCommand
     {
         public override void Execute(INotification notification)
         {
-            Debug.Log("CodeGen");
+            AssetDatabase.Refresh();
         }
     }
 }

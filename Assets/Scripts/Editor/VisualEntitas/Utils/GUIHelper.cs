@@ -29,5 +29,18 @@ namespace Entitas.Visual.Utils
 
             return content;
         }
+
+        public static void DrawLine(Vector2 start, Vector2 end, Color color)
+        {
+            GL.PushMatrix();
+            GL.Begin(GL.LINES);
+            StyleProxy.EditorMaterial.SetTexture(StyleProxy.EditorMaterialTextureParameterName, null);
+            StyleProxy.EditorMaterial.SetPass(0);
+            GL.Color(color);
+            GL.Vertex(start);
+            GL.Vertex(end);
+            GL.End();
+            GL.PopMatrix();
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace PureMVC.Interfaces
     ///             <item>Maintain references to one or more pieces of model data.</item>
     ///             <item>Provide methods for manipulating that data.</item>
     ///             <item>Generate <c>INotifications</c> when their model data changes.</item>
-    ///             <item>Expose their name as a <c>public static const</c> called <c>NAME</c>, if they are not instantiated multiple times.</item>
+    ///             <item>Expose their name as a <c>public static const</c> called <c>DEFAULT_NAME</c>, if they are not instantiated multiple times.</item>
     ///             <item>Encapsulate interaction with local or remote services used to fetch and persist model data.</item>
     ///         </list>
     ///     </para>

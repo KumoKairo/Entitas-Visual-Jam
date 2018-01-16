@@ -35,7 +35,7 @@ namespace PureMVC.Patterns.Proxy
     public class Proxy: Notifier, IProxy, INotifier
     {
         /// <summary>Name of the proxy</summary>
-        public static string NAME = "Proxy";
+        public static string DEFAULT_NAME = "Proxy";
 
         /// <summary>
         /// Constructor.
@@ -44,7 +44,7 @@ namespace PureMVC.Patterns.Proxy
         /// <param name="data"></param>
         public Proxy(string proxyName, object data=null)
         {
-            ProxyName = proxyName ?? Proxy.NAME;
+            ProxyName = proxyName ?? Proxy.DEFAULT_NAME;
             if (data != null) Data = data;
         }
 

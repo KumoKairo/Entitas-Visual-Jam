@@ -21,8 +21,6 @@ namespace Entitas.Visual
             Repaint();
         }
 
-        private float scale = 1f;
-
         public void OnGUI()
         {
             if (_facade == null)
